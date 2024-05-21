@@ -1,0 +1,1069 @@
+---
+title: "Spring Data Analytics Project"
+author: "Kevin Schell"
+output: 
+  html_document:
+    theme: journal
+    toc: yes
+    toc_float:
+      collapsed: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Introduction {.tabset}
+
+### About Me
+
+To cite Nate Bargatze, "Hello World!" 
+
+As you can see above, my name is Kevin Schell. I am a practicing physical therapist with over twelve years of clinical experience working with adults admitted to a major academic medical center in Boston. I am a board-certified clinical specialist in geriatric physical therapy and have provided physical therapy care to adults across all specialties including critical care environments and the hospital's emergency department. In fact, my time working in the emergency department ignited a new passion for me to take my clinical experience and (hopefully) positively impact the patient experience at a different level from one-on-one patient care. To this end, I am currently pursuing a [Master of Science in Healthcare Data Analytics at the MGH Institute of Health Professions](https://www.mghihp.edu/healthcare-leadership/degrees-programs/ms-healthcare-data-analytics). 
+
+To supplement my learning, I have used different publicly available datasets to practice visualization techniques while looking for potential associations to further investigate with statistical analyses. Most recently, I utilized [Employee Attrition from Healthcare](https://www.kaggle.com/datasets/jpmiller/employee-attrition-for-healthcare) from Kaggle. Please feel free to peruse the rest of this site to see my efforts related to this project.
+
+### Dataset
+
+The Employee Attrition from Healthcare dataset includes fabricated data. Overall, there are nearly 1,700 observations with 34 variables with near flawless data capture (i.e. minimal missing values and no duplicate observations). The primary outcome of interest for this analysis involves whether or not an individual left their job, captured in the variable Attrition. The potential independent variables include demographic information, work experiences, and quality of life measures. The author of the dataset referenced the US healthcare system. Given this, I am making some assumptions regarding units of measure. For example, I am assuming DistanceFromHome is captured in miles as opposed to kilometers, and compensation values are reported in US Dollars. I am also assuming that the self report measures follow typical 4-point Likert scales, however, this is never explicitly stated. 
+
+### Addressing Variable Type and Levels
+
+Several of the variables were interpreted as the wrong variable type after being read into R. For example, the main outcome of interest for this dataset Attrition was initially treated as a character/string variable. I converted this to a factor. This was a recurring issue across several variables. To reduce the volume of coding required, I converted the string/character variables to factor variables and then later updated ordinal variables with their respective levels respectively. 
+
+I also relabeled the JobRole level Admin to Administrative. This Admin level presented a bit of an issue as it is unclear whether it reflects a truly different level from Administrative versus represents an issue in how the information was collected (i.e. free text submission). I could have simply removed the limited number of observations with JobRole == Admin, but I decided to treat Admin as representing the same role group as Administrative. 
+
+```{r}
+if (!require(tidyverse)) install.packages("tidyverse")
+library(tidyverse)
+setwd("C:\\Users\\Kevin\\Documents\\Spring 2024 Data Analytics Project")
+att <- read.csv("watson_healthcare_modified.csv")
+att$Attrition<-as.factor(att$Attrition)
+att <- att %>%
+  mutate(across(where(is.character), as.factor))
+att$JobRole<-recode_factor(att$JobRole, "Admin" = "Administrative")
+att$EnvironmentSatisfaction<-factor(att$EnvironmentSatisfaction, ordered  = TRUE, levels = c("1", "2", "3", "4"))
+att$JobLevel<-factor(att$JobLevel, ordered  = TRUE, levels = c("1", "2", "3", "4"))
+att$JobInvolvement<-factor(att$JobInvolvement, ordered = TRUE, levels = c("1", "2", "3", "4"))
+att$JobSatisfaction<-factor(att$JobSatisfaction, ordered = TRUE, levels = c("1", "2", "3", "4"))
+att$RelationshipSatisfaction<-factor(att$RelationshipSatisfaction, ordered = TRUE, level = c("1", "2", "3", "4"))
+att$PerformanceRating<-factor(att$PerformanceRating, ordered = TRUE, levels = c("1", "2", "3", "4"))
+att$BusinessTravel<-factor(att$BusinessTravel, ordered = TRUE, levels = c("Non-Travel", "Travel_Rarely", "Travel_Frequently"))
+att$WorkLifeBalance<-factor(att$WorkLifeBalance, ordered = TRUE, levels = c("1", "2", "3", "4"))
+att$Shift<-as.factor(att$Shift)
+str(att)
+```
+
+### Addressing Missingness 
+
+Out of the 34 variables included in this dataset, only JobLevel includes potentially missing values. There are 81 observations with "NA" as their value for JobLevel. It is possible that "NA" accurately reflects these observations' JobLevel. In other words, there may be 81 respondents whose roles do not include ascending levels. However, it is also possible that some respondents may have inadvertently failed to respond to this question, or there may have been a transcription error when this dataset was generated from the raw data. Without knowing how this fabricated data was "collected," it is impossible to know for certain. 
+
+Below you will find my initial analysis of missingness using the mice package. The analysis confirmed that only JobLevel had missing values. Summaries of sdatasets with all observations and one with observations removed for missing JobLevel are included below as well. Had the differences been more egregious, I would have considered imputation of JobLevel. However, given the lack of clarity regarding the meaning of NA combined with only subtle differences and relatively small percentage of missing values, I decided I would remove the observations with missing values and use this dataset if JobLevel appeared relevant to include when specifying models. Visual analysis of Attrition by JobLevel demonstrates that a higher percentage of respondents with lower job level leave their role. Given this, I decided to go forward with the dataset with observations removed for missingness. 
+
+
+```{r}
+if (!require(mice)) install.packages("mice")
+library(mice)
+md.pattern(att)
+```
+
+#### Descriptive Statistics of Dataset with Missing Values Included
+```{r}
+att.continuous <- att %>%
+select(Age, DailyRate, DistanceFromHome, Education, HourlyRate, MonthlyIncome, MonthlyRate, NumCompaniesWorked, PercentSalaryHike, StandardHours, TotalWorkingYears, YearsAtCompany, YearsInCurrentRole,YearsSinceLastPromotion, YearsWithCurrManager)
+summary(att.continuous)
+att.nomord<-att%>%
+  select(!c(EmployeeID, Age, DailyRate, DistanceFromHome, Education, HourlyRate, MonthlyIncome, MonthlyRate, NumCompaniesWorked, PercentSalaryHike, StandardHours, TotalWorkingYears, TrainingTimesLastYear, YearsAtCompany, YearsInCurrentRole,YearsSinceLastPromotion, YearsWithCurrManager))
+summary(att.nomord)
+```
+
+#### Attrition by Job Level with NA Included
+```{r}
+ggplot(data = att, aes(x = JobLevel, fill = Attrition)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Attrition by Job Level",
+    subtitle = ""
+  )
+addmargins(table(att$JobLevel,att$Attrition))
+```
+
+#### Descriptive Statistics of Dataset with Observations with Missing Values Removed
+```{r}
+att.na <- na.omit(att)
+att.na.continuous <- att.na %>%
+select(Age, DailyRate, DistanceFromHome, Education, HourlyRate, MonthlyIncome, MonthlyRate, NumCompaniesWorked, PercentSalaryHike, StandardHours, TotalWorkingYears, YearsAtCompany, YearsInCurrentRole,YearsSinceLastPromotion, YearsWithCurrManager)
+summary(att.na.continuous)
+att.na.nomord<-att.na%>%
+  select(!c(EmployeeID, Age, DailyRate, DistanceFromHome, Education, HourlyRate, MonthlyIncome, MonthlyRate, NumCompaniesWorked, PercentSalaryHike, StandardHours, TotalWorkingYears, TrainingTimesLastYear, YearsAtCompany, YearsInCurrentRole,YearsSinceLastPromotion, YearsWithCurrManager))
+summary(att.na.nomord)
+```
+
+```{r}
+att<-att.na
+```
+
+
+## Descriptive Statistics, Tables, and Visualizations {.tabset}
+
+### Descriptive Statistics 
+
+```{r}
+att.continuous <- att %>%
+select(Age, DailyRate, DistanceFromHome, Education, HourlyRate, MonthlyIncome, MonthlyRate, NumCompaniesWorked, PercentSalaryHike, StandardHours, TotalWorkingYears, YearsAtCompany, YearsInCurrentRole,YearsSinceLastPromotion, YearsWithCurrManager)
+summary(att.continuous)
+att.nomord<-att%>%
+  select(!c(EmployeeID, Age, DailyRate, DistanceFromHome, Education, HourlyRate, MonthlyIncome, MonthlyRate, NumCompaniesWorked, PercentSalaryHike, StandardHours, TotalWorkingYears, TrainingTimesLastYear, YearsAtCompany, YearsInCurrentRole,YearsSinceLastPromotion, YearsWithCurrManager))
+summary(att.nomord)
+```
+
+
+
+### Demographics
+
+#### Age, All Roles
+```{r}
+ggplot(data = att, aes(Age)) +
+  geom_histogram(binwidth = 2, color = "grey65",fill = "hotpink4") +
+  geom_vline(aes(xintercept = mean(Age)), color = "black", linewidth = 1.25) +
+  theme_test()+
+  labs(
+    title = "Age of Respondents",
+    subtitle = "Skews Older",
+    x = "Age in Years",
+    y = "Count of Respondents"
+  )
+
+ggplot(data = att, aes(x = "", y=Age)) +
+  geom_boxplot() +
+  geom_jitter(shape = 21, alpha = 0.25, color = "grey3") +
+  theme_test() +
+  theme(
+    axis.ticks.x = element_blank(),
+    axis.text.x = element_blank()
+  ) +
+  labs(
+    title = "Age of Respondents",
+    subtitle = "Older Skew Less Obvious",
+    x = "All Respondents",
+    y = "Age in Years"
+  )
+
+```
+
+#### Job Role
+
+```{r}
+ggplot(data = att, aes(x = JobRole, fill = JobRole)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4")) +
+  labs(
+    title = "JobRole All Respondents",
+    subtitle = "Nursing Role is Most Represented"
+  )
+```
+
+
+#### Age by Job Role
+
+```{r}
+ggplot(data = att, aes(Age, fill = JobRole)) +
+  geom_histogram(binwidth = 2, color = "dimgrey") +
+  facet_wrap(~att$JobRole) +
+  theme_test()+
+  scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4")) +
+  labs(
+    title = "Age of Respondents by JobRole",
+    x = "Age in Years",
+    y = "Count of Respondents"
+  )
+
+ggplot(data = att, aes(x = JobRole, y = Age, fill = JobRole)) +
+  geom_boxplot(color = "grey6") +
+  theme_test() +
+  labs(
+    title = "Age by JobRole",
+    subtitle = "Admin/Administrative Relatively Older"
+  ) +
+  scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4"))
+  
+  
+```
+
+#### Gender
+
+```{r}
+ggplot(data = att, aes(x = Gender, fill = Gender)) +
+  geom_bar() +
+  scale_fill_manual(values = c("hotpink4", "dodgerblue4")) +
+  theme_test() +
+  labs(
+    title = "Gender", 
+    subtitle = "Male Gender Overrepresented",
+    y = "Count of Respondents"
+  )
+```
+
+#### Gender by Job Role 
+
+```{r}
+ggplot(data = att, aes(x = JobRole, fill = Gender)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("hotpink4", "dodgerblue4")) +
+  labs(
+    title = "Gender by JobRole",
+    subtitle = "Male Gender Overrepresented in Nursing and Other Groups"
+  )
+```
+
+
+#### Marital Status 
+
+```{r}
+ggplot(data = att, aes(x = MaritalStatus, fill = Gender)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() +
+  labs(
+    title = "Marital Status All Respondents",
+    subtitle = "Slightly Less Than Half are Currently Married"
+  ) +
+  scale_fill_manual(values = c("hotpink4", "dodgerblue4"))
+ggplot(data = att, aes(x = MaritalStatus, fill = Gender)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() +
+  facet_wrap(~JobRole) +
+  scale_fill_manual(values = c("hotpink4", "dodgerblue4")) +
+  labs(
+    title = "Marital Status by JobRole",
+    subtitle = "Nurses and Other Group Greater Percent Currently Single"
+  )
+```
+
+
+
+### Work Experience
+
+#### Travel Distance, Home to Workplace
+
+```{r}
+ggplot(data = att, aes(x = DistanceFromHome)) +
+  geom_histogram(binwidth = 2, color = "dimgrey",fill = "grey65") +
+  geom_vline(aes(xintercept = mean(DistanceFromHome)), color = "black", linewidth = 1.25) +
+  theme_test() +
+  scale_x_continuous(breaks = round(seq(min(att$DistanceFromHome), max(att$DistanceFromHome), by = 3),1)) +
+  labs(
+    title = "Travel Distance, Home to Workplace",
+    subtitle = "Most Live Close to Workplace, Skews Farther Away "
+  )
+ggplot(data = att, aes(x = JobRole, y = DistanceFromHome, fill = JobRole)) +
+  geom_boxplot() +
+  theme_test() +
+    scale_y_continuous(breaks = round(seq(min(att$DistanceFromHome), max(att$DistanceFromHome), by = 2),1)) +
+  scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4"))
+
+```
+
+#### Business Travel Requirements
+
+```{r}
+ggplot(data = att, aes(x = BusinessTravel, fill= BusinessTravel)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("cyan3", "cadetblue3", "cadetblue")) +
+  labs(
+    title = "Count of Respondents by Business Travel",
+    subtitle = "Most Respondents Rarely Travel"
+  )
+ggplot(data = att, aes(x = BusinessTravel, fill = BusinessTravel)) +
+  geom_bar(color = "dimgrey") +
+  scale_fill_manual(values = c("cyan3", "cadetblue3", "cadetblue")) +
+  theme_test() +
+  facet_wrap(~JobRole) +
+  labs(
+    title = "Similar Work Travel Experiences across Roles",
+    subtitle = "Limited no. of Respondents Required to Travel for Work"
+  )
+```
+
+#### HourlyRate 
+
+```{r}
+ggplot(data = att, aes(x = HourlyRate)) +
+  geom_histogram(binwidth = 5, color = "dimgrey",fill = "darkolivegreen4") +
+  geom_vline(aes(xintercept = mean(HourlyRate)), color = "black", linewidth = 1.25) +
+  theme_test() +
+  scale_x_continuous(breaks = round(seq(min(att$HourlyRate), max(att$HourlyRate), by = 5),1)) +
+  labs(
+    title = "Hourly Wage Equivalent, All Respondents",
+    subtitle = "Bimodal Distribution"
+  )
+ggplot(data = att, aes(x = JobRole, y = HourlyRate, fill = JobRole)) +
+  geom_boxplot() +
+  theme_test() +
+    scale_y_continuous(breaks = round(seq(min(att$HourlyRate), max(att$HourlyRate), by = 5),1)) +
+  scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4")) +
+  labs(
+    title = "Hourly Wage Equivalent, By JobRole",
+    subtitle = "Similar Wages across Role Groups"
+  )
+```
+
+#### Percent Salary Hike
+
+```{r}
+ggplot(data = att, aes(x = PercentSalaryHike)) +
+  geom_histogram(binwidth = 1, color = "dimgrey",fill = "darkolivegreen4") +
+  geom_vline(aes(xintercept = mean(PercentSalaryHike)), color = "black", linewidth = 1.25) +
+  theme_test() +
+  scale_x_continuous(breaks = round(seq(min(att$PercentSalaryHike), max(att$PercentSalaryHike), by = 1),1)) +
+  labs(
+    title = "Percent Salary Hike, All Respondents",
+    subtitle = "Marked Skew Toward Higher Percent Salary Changes"
+  )
+ggplot(data = att, aes(x = JobRole, y = PercentSalaryHike, fill = JobRole)) +
+  geom_boxplot() +
+  theme_test() +
+    scale_y_continuous(breaks = round(seq(min(att$PercentSalaryHike), max(att$PercentSalaryHike), by = 1),1)) +
+  scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4")) +
+  labs(
+    title = "Percent Salary Hike By JobRole",
+    subtitle = "Median Therapist Percent Salary Change Higher, Otherwise Similar across Roles"
+  )
+```
+
+#### Over Time vs Not
+```{r}
+ggplot(data = att, aes(x = OverTime, fill = OverTime)) +
+  geom_bar(color = "dimgrey")+
+  theme_test()+
+  labs(
+    title = "Over Time Status - All Participants",
+    subtitle = "Less Thank One Third Participate in Over Time"
+  ) +
+  scale_fill_manual(values = c("red4", "green4"))
+ggplot(data = att, aes(x = OverTime, fill = OverTime)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() +
+  facet_wrap(~JobRole) +
+  labs(
+    title = "Over Time Participation by JobRole", 
+  subtitle = "Other Role Group Appears to Have Higher Percentage of Over Time Participation") +
+  scale_fill_manual(values = c("red4", "green4"))
+```
+
+
+#### Total Career Length
+
+```{r}
+ggplot(data = att, aes(x = TotalWorkingYears)) +
+  geom_histogram(binwidth = 2, color = "dimgrey",fill = "darkslategray") +
+  geom_vline(aes(xintercept = mean(TotalWorkingYears)), color = "black", linewidth = 1.25) +
+  theme_test() +
+  scale_x_continuous(breaks = round(seq(min(att$TotalWorkingYears), max(att$TotalWorkingYears), by = 2),1)) +
+  labs(
+    title = "Total Career Length, All Respondents",
+    subtitle = "Marked Drop around 12 Years & Heavily Skewed toward Long Careers"
+  )
+ggplot(data = att, aes(x = JobRole, y = TotalWorkingYears, fill = JobRole)) +
+  geom_boxplot() +
+  theme_test() +
+    scale_y_continuous(breaks = round(seq(min(att$TotalWorkingYears), max(att$TotalWorkingYears), by = 5),1)) +
+  scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4")) +
+  labs(
+    title = "Total Career Length By JobRole",
+    subtitle = "Administrative Respondents with Longer Careers, All Roles Skew Right"
+  )
+```
+
+#### Years at Current Company
+
+```{r}
+ggplot(data = att, aes (x = YearsAtCompany)) +
+  geom_histogram(binwidth = 2, color = "dimgrey", fill = "blue4") +
+  geom_vline(xintercept = mean(att$YearsAtCompany, color = "black", linewidth = 1.25 )) +
+  scale_x_continuous(breaks = round(seq(min(att$YearsAtCompany), max(att$YearsAtCompany), by = 2),1)) +
+  theme_test() +
+  labs(
+    title = "Years at Current Company",
+    subtitle = "Most Respondents with Less Than 10 Years at Company"
+  )
+ggplot(data = att, aes(x = JobRole, y = YearsAtCompany, fill = JobRole)) +
+  geom_boxplot() +
+  theme_test() +
+    scale_y_continuous(breaks = round(seq(min(att$YearsAtCompany), max(att$YearsAtCompany), by = 5),1)) +
+  scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4")) +
+  labs(
+    title = "Years at Current Company by JobRole",
+    subtitle = "Administrative Respondends with More Years at Company"
+  )
+```
+
+#### Years in Current Role
+
+```{r}
+ggplot(data = att, aes (x = YearsInCurrentRole)) +
+  geom_histogram(binwidth = 1, color = "dimgrey", fill = "blue4") +
+  geom_vline(xintercept = mean(att$YearsInCurrentRole, color = "black", linewidth = 1.25 )) +
+  scale_x_continuous(breaks = round(seq(min(att$YearsInCurrentRole), max(att$YearsInCurrentRole), by = 2),1)) +
+  theme_test() +
+  labs(
+    title = "Years in Current Role",
+    subtitle = "Multimodal Distribution"
+  )
+ggplot(data = att, aes(x = JobRole, y = YearsInCurrentRole, fill = JobRole)) +
+  geom_boxplot() +
+  theme_test() +
+   scale_y_continuous(breaks = round(seq(min(att$YearsInCurrentRole), max(att$YearsInCurrentRole), by = 5),1)) +
+  scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4")) +
+  labs(
+    title = "Years in Current Role by JobRole",
+    subtitle = "Nurse and Other with Greater Skew toward Longer Time in Role"
+  )
+```
+
+#### Years Since Last Promotion
+
+```{r}
+ggplot(data = att, aes (x = YearsSinceLastPromotion)) +
+  geom_histogram(binwidth = 1, color = "dimgrey", fill = "azure3") +
+  geom_vline(xintercept = mean(att$YearsSinceLastPromotion, color = "black", linewidth = 1.25 )) +
+  scale_x_continuous(breaks = round(seq(min(att$YearsSinceLastPromotion), max(att$YearsSinceLastPromotion), by = 2),1)) +
+  theme_test() +
+  labs(
+    title = "Years Since Last Promotion",
+    subtitle = "Most Respondents with Promotion in Last 2 Years"
+  )
+ggplot(data = att, aes(x = JobRole, y = YearsSinceLastPromotion, fill = JobRole)) +
+  geom_boxplot() +
+  theme_test() +
+   scale_y_continuous(breaks = round(seq(min(att$YearsSinceLastPromotion), max(att$YearsSinceLastPromotion), by = 5),1)) +
+  scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4")) +
+  labs(
+    title = "Years Since Last Promotion by JobRole",
+    subtitle = "Administrative Group with Greatest Variability"
+  )
+```
+
+#### Job Level 
+```{r}
+ggplot(data = att, aes(x = JobLevel, fill = JobLevel)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("azure", "azure2", "azure3", "azure4", "black")) +
+  labs(
+    title = "Job Level All Respondents",
+    subtitle = "Greater Number of Respondents with Lower Job Levels"
+  )
+```
+
+
+### Quality of Life Measures
+
+#### Job Satisfaction 
+
+```{r}
+ggplot(data = att, aes(x = JobSatisfaction, fill = JobSatisfaction)) +
+  geom_bar(color = "dimgrey") +
+  scale_fill_manual(values = c("azure", "azure2", "azure3", "azure4")) +
+  theme_test() +
+  labs(
+    title = "Job Satisfaction All Respondents",
+    subtitle = "Generally More Satisfied Than Not"
+  )
+ggplot(data = att, aes(x = JobSatisfaction, fill = JobSatisfaction)) +
+  geom_bar(color = "dimgrey") +
+  scale_fill_manual(values = c("azure", "azure2", "azure3", "azure4")) +
+  facet_wrap(~JobRole) +
+  theme_test() +
+  labs(
+    title = "Job Satisfaction by JobRole",
+    subtitle = "Nurses Relatively More Satisfied"
+  )
+```
+
+#### Environment Satisfaction
+
+```{r}
+ggplot(data = att, aes(x = EnvironmentSatisfaction, fill = EnvironmentSatisfaction)) +
+  geom_bar(color = "dimgrey") +
+  scale_fill_manual(values = c("azure", "azure2", "azure3", "azure4")) +
+  theme_test() +
+  labs(
+    title = "Environment Satisfaction All Respondents",
+    subtitle = "Generally More Favorable Than Not"
+  )
+ggplot(data = att, aes(x = EnvironmentSatisfaction, fill = EnvironmentSatisfaction)) +
+  geom_bar(color = "dimgrey") +
+  scale_fill_manual(values = c("azure", "azure2", "azure3", "azure4")) +
+  facet_wrap(~JobRole) +
+  theme_test() +
+  labs(
+    title = "Environment Satsifaction by JobRole",
+    subtitle = "Nurses Relatively More Satsified as Compared to Other Roles")
+```
+
+#### Work Life Balance
+
+```{r}
+ggplot(data = att, aes(x = WorkLifeBalance, fill = WorkLifeBalance)) +
+  geom_bar(color = "dimgrey") +
+  scale_fill_manual(values = c("azure", "azure2", "azure3", "azure4")) +
+  theme_test() +
+  labs(
+    title = "Work Life Balance All Respondents",
+    subtilte = "Generally More Satisfied Than Not"
+  )
+ggplot(data = att, aes(x = WorkLifeBalance, fill = WorkLifeBalance)) +
+  geom_bar(color = "dimgrey") +
+    scale_fill_manual(values = c("azure", "azure2", "azure3", "azure4")) +
+  facet_wrap(~JobRole) +
+  theme_test() +
+  labs(
+    title = "Work Life Balance by JobRole",
+    subtitle = "Similar Experiences Across Role Groups"
+  )
+```
+
+
+#### Relationship Satistfaction
+
+```{r}
+ggplot(data = att, aes(x = RelationshipSatisfaction, fill = RelationshipSatisfaction)) +
+  geom_bar(color = "dimgrey") +
+  scale_fill_manual(values = c("azure", "azure2", "azure3", "azure4")) +
+  theme_test()+
+  labs(
+    title = "Relationship Satisfaction All Respondents",
+    subtitle = "Generally More Satisfied Than Not"
+  )
+ggplot(data = att, aes(x = JobSatisfaction, fill = JobSatisfaction)) +
+  geom_bar(color = "dimgrey") +
+    scale_fill_manual(values = c("azure", "azure2", "azure3", "azure4")) +
+  facet_wrap(~JobRole) +
+  theme_test() +
+  labs(
+    title = "Relationship Satisfaction by JobRole",
+    subtitle = "Diferent Experiences Across Role Groups"
+  )
+```
+
+
+#### Job Involvement
+
+```{r}
+ggplot(data = att, aes(x = JobInvolvement, fill = JobInvolvement)) +
+  geom_bar(color = "dimgrey") +
+  scale_fill_manual(values = c("azure", "azure2", "azure3", "azure4")) +
+  theme_test() +
+  labs(
+    title = "Job Involvement All Respondents",
+    subtitle = "Generally Perceive More Engaged Than Not"
+  )
+ggplot(data = att, aes(x = JobInvolvement, fill = JobInvolvement)) +
+  geom_bar(color = "dimgrey") +
+    scale_fill_manual(values = c("azure", "azure2", "azure3", "azure4")) +
+  facet_wrap(~JobRole) +
+  theme_test() +
+  labs(
+    title = "Job Involvement by JobRole",
+    subtitle = "Nurses and Other Group Perceived Greater Engagement"
+  )
+```
+
+#### Performance Rating
+
+```{r}
+ggplot(data = att, aes(x = PerformanceRating, fill = PerformanceRating)) +
+  geom_bar(color = "dimgrey") +
+  scale_fill_manual(values = c("azure3", "azure4")) +
+  theme_test() +
+  labs(
+    title = "Performance Rating All Respondents",
+    subtitle = "No Poorly Performing Respondents"
+  )
+ggplot(data = att, aes(x = PerformanceRating, fill = PerformanceRating)) +
+  geom_bar(color = "dimgrey") +
+  scale_fill_manual(values = c("azure3", "azure4")) +
+  facet_wrap(~JobRole) +
+  theme_test()+
+  labs(
+    title = "Performance Rating by JobRole",
+    subtitle = "Similar Ratings Across Role Groups"
+  )
+```
+
+
+
+### Attrition
+
+#### All Respondents and By JobRole
+```{r}
+ggplot(data = att, aes(x = Attrition, fill = Attrition)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() + 
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Attrition All Respondents",
+    subtitle = "Recent Resignation or Separation Relatively Rare"
+  )
+ggplot(data = att, aes(x = Attrition, fill = Attrition)) +
+  geom_bar(color = "dimgrey") +
+  scale_fill_manual(values = c("red4", "green4")) +
+  facet_wrap(~JobRole) +
+  theme_test() +
+  labs(
+    title = "Attrition by JobRole",
+    subtitle = "Relatively Rare Across Role Groups"
+  )
+```
+
+#### Attrition by Gender
+```{r}
+ggplot(data = att, aes(x = Gender, fill = Attrition)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Attrition by Gender", 
+    subtitle = "Similar Experiences for Male and Female Gender"
+  )
+ggplot(data = att, aes(x = Attrition, fill = Attrition)) +
+  geom_bar(color = "dimgrey") +
+  facet_wrap(~Gender) +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4"))
+  labs(
+    title = "Attrition Separated by Gender",
+    subtitle = "Slightly Greater Percentage of Female Gender Group Left Job"
+  )
+addmargins(table(att$Gender, att$Attrition))
+Percent_Female_Attrition <- 86/678
+Percent_Male_Attrition <- 113/998
+Percent_Female_Attrition
+Percent_Male_Attrition
+```
+
+#### Age by Attrition Status
+```{r}
+ggplot(data = att, aes(x = Attrition, y = Age, fill = Attrition)) + 
+  geom_boxplot() +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Age by Attrition Status",
+    subtitle = "Those who Recently Left Job Appear Younger on Avg"
+  )
+```
+
+#### Distance From Home by Attrition Status
+```{r}
+ggplot(data = att, aes(x = Attrition, y = DistanceFromHome, fill = Attrition)) +
+  geom_boxplot(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Travel Distance by Attrition Status",
+    subtitle = "Greater Variability in Travel Distances for Those Who Left Role"
+  )
+```
+
+#### Hourly Rate by Attrition Status
+```{r}
+ggplot(data = att, aes(x = Attrition, y = HourlyRate, fill = Attrition)) +
+  geom_boxplot() +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Hourly Rate by Attrition Status",
+    subtitle = "Similar Pay Experiences"
+  )
+```
+
+#### Attrition by OverTime Participation
+
+```{r}
+ggplot(data = att, aes(x = Attrition, fill = Attrition)) +
+  geom_bar(color = "dimgrey") +
+  facet_wrap(~ OverTime) +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Attrition by OverTime Participation - All Participants",
+    subtitle = "Much Higher Percentage of Over Time Participants Leave Job",
+    x = "No Over Time on Left, At Least Some Over Time on Right"
+  )
+```
+
+
+
+
+#### Percent Salary Hike by Attrition Status
+```{r}
+ggplot(data = att, aes(x = Attrition, y = PercentSalaryHike, fill = Attrition)) +
+  geom_boxplot(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Percent Salary Change by Attrition Status",
+    subtitle = "No Difference"
+  )
+```
+
+#### Total Working Years by Attrition Status
+```{r}
+ggplot(data = att, aes(x = Attrition, y = TotalWorkingYears, fill = Attrition)) +
+  geom_boxplot(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Career Duration by Attrition Status",
+    subtitle = "Shorter Career Duration on Avg for Those Who Left Role"
+  )
+```
+
+#### Years at Current Company 
+```{r}
+ggplot(data = att, aes(x = Attrition, y = YearsAtCompany, fill = Attrition)) +
+  geom_boxplot(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Years with Current Company by Attrition Status",
+    subtitle = "Less time with Current Company for Those who Left Role"
+  )
+```
+
+#### Years in Current Role by Attrition Status 
+```{r}
+ggplot(data = att, aes(x = Attrition, y = YearsInCurrentRole, fill = Attrition)) +
+  geom_boxplot(color = "dimgrey") +
+  theme_test()+
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Years in Current Role by Attrition Status",
+    subtitle = "Fewer Years in Current Role for Those Who Left Job"
+  )
+```
+
+#### Years Since Last Promotion
+```{r}
+ggplot(data = att, aes(x = Attrition, y = YearsSinceLastPromotion, fill = Attrition)) +
+  geom_boxplot(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Years Since Promotion by Attrition Status",
+    subtitle = "Greater Variability for Those Who Have Not Left Job"
+  )
+```
+
+
+#### Attrition by Environment Satisfaction
+```{r}
+ggplot(data = att, aes(x = EnvironmentSatisfaction, fill = Attrition)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Attrition by Environment Satisfaction Scores",
+    subtitle = "Greater Percentage of Less Satsified Leave Role"
+  )
+```
+
+#### Attrition by Marital Status
+```{r}
+ggplot(data = att, aes(x = MaritalStatus, fill = Attrition)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Attrition by Marital Status",
+    subtitle = "Higher Percentage of Married Respondents Left Role"
+  )
+```
+
+#### Attrition by Relationship Satisfaction
+```{r}
+ggplot(data = att, aes(x = RelationshipSatisfaction, fill = Attrition)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Attrition by Relationship Satisfaction Scores",
+    subtitle = "Similar Attrition Rates across Grous"
+  )
+```
+
+#### Attrition by Work Life Balance
+```{r}
+ggplot(data = att, aes(x = WorkLifeBalance, fill = Attrition)) +
+  geom_bar(color = "dimgrey") +
+  scale_fill_manual(values = c("red4", "green4")) +
+  theme_test() +
+  labs(
+    title = "Attrition by Work Life Balance Scores",
+    subtitle = "Similar Attrition across Groups"
+  )
+  
+```
+
+#### Attrition by Job Involvement 
+```{r}
+ggplot(data = att, aes(x = JobInvolvement, fill = Attrition)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Attrition by Job Involvement Scores", 
+    subtitle = "Higher Percentage of Lower Scores Leave Role"
+  )
+```
+
+#### Attrition by Job Satisfaction
+```{r}
+ggplot(data = att, aes(x = JobSatisfaction, fill = Attrition)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Attrition by Job Satisfaction",
+    subtitle = "Similar Gross Attrition but Greater Percentage for Lower Scores"
+  )
+```
+
+#### Attrition by Performance Rating
+```{r}
+ggplot(data = att, aes(x = PerformanceRating, fill = Attrition)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4"))+
+  labs(
+    title = "Attrition by Performance Rating",
+    subtitle = "Similar Attrition Rates across High Performing Respondents"
+  )
+addmargins(table(att$Attrition, att$PerformanceRating))
+percent_attrition_score3 <- 167/1424
+percent_attrition_score4 <- 32/252
+percent_attrition_score3
+percent_attrition_score4
+```
+
+#### Attrition by Job Level
+```{r}
+ggplot(data = att, aes(x = JobLevel, fill = Attrition)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Attrition by Job Level",
+    subtitle = "Hihger Percentage of Respondents with Lowest Job Level Leave Role"
+  )
+```
+
+
+## Initial Log Regression Models {.tabset}
+
+### Dividing the Dataset
+
+I divided the dataset with observations with NA for JobLevel removed into a training dataset and testing dataset with 80% of the observations going to former and 20% to the latter.
+
+```{r}
+train_set_size <- floor(0.80 * nrow(att))
+set.seed(316)
+train_div<-sample(seq_len(nrow(att)), size = train_set_size)
+train.att<-att[train_div, ]
+test.att <- att[-train_div, ]
+dim(train.att)
+dim(test.att)
+```
+
+### Model Specificiation Rationales
+
+To identify relevant independent variables to include in the logistic regression models, I focused on the Attrition visualizations and anecdotal evidence shared by healthcare workers regarding their rationales for leaving their jobs. 
+
+Specific independent variables included initially include JobRole, Age, DistanceFromHome, TotalWorkingYears, YearsAtCompany YearsInCurrentRole, YearsSinceLastPromotion, EnvironmentSatisfaction, OverTime, MartialStatus, JobInvolvement, JobSatisfaction, and JobLevel.
+
+When considering the temporal variables, there is likely some degree of correlation between Age and TotalWorkingYears, YearsAtCompany, and YearsInCurrentRole. Given this, I will create an additional model with the non-Age temporal variables removed to see how they perform against each other. 
+
+It is possible there are associations between Age and MaritalStatus and JobLevel as well. I will pull these variables in a third model that will only include JobRole, Age, DistanceFromHome, YearsSinceLastPromotion, EnvironmentalSatisfaction, OverTime, JobInvolvement, and JobSatisfaction. 
+
+Lastly, I have been considering JobRole as a grouping variable and using fixed effects in the first three models. For the fourth model, I will explore a mixed effects model using "random" intercepts for the different role groups. Further grouping or levels is limited by the nature of this dataset.  
+
+### Models & Comparing Fit on Training Data
+```{r}
+if (!require(lme4)) install.packages("lme4")
+library(lme4)
+if (!require(jtools)) install.packages("jtools")
+library(jtools)
+if (!require(ResourceSelection)) install.packages("ResourceSelection")
+library(ResourceSelection)
+if (!require(lmtest)) install.packages("lmtest")
+library(lmtest)
+reg1 <- glm(Attrition ~ JobRole+Age+DistanceFromHome+TotalWorkingYears+ YearsAtCompany + YearsInCurrentRole + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime + MaritalStatus + JobInvolvement + JobSatisfaction + JobLevel, data = train.att, family = "binomial")
+summ(reg1, exp = TRUE, confint = TRUE)
+hoslem.test(reg1$y,predict(reg1, type = "response"))
+reg2 <- glm(Attrition ~ JobRole+Age+DistanceFromHome + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime + MaritalStatus + JobInvolvement + JobSatisfaction + JobLevel, data = train.att, family = "binomial")
+summ(reg2, exp = TRUE, confint = TRUE)
+lrtest(reg1, reg2)
+hoslem.test(reg2$y, predict(reg2, type = "response"))
+reg3 <- glm(Attrition ~ JobRole+Age+DistanceFromHome + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime + JobInvolvement + JobSatisfaction, data = train.att, family = "binomial")
+summ(reg3, exp = TRUE, confint = TRUE)
+hoslem.test(reg3$y, predict(reg3, type = "response"))
+reg4 <- glmer(Attrition ~ Age + DistanceFromHome + TotalWorkingYears + YearsAtCompany + YearsInCurrentRole + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime + MaritalStatus + JobInvolvement + JobSatisfaction + JobLevel + (1|JobRole), data = train.att, family = "binomial")
+summ(reg4, exp = TRUE, confint = TRUE)
+lrtest(reg1, reg2)
+lrtest(reg1, reg3)
+lrtest(reg2, reg3)
+```
+
+### Reg1 Performance on Test Data
+
+```{r}
+if (!require(caret)) install.packages("caret")
+library(caret)
+test.probabilities <- predict(reg1, test.att, type = "response")
+contrasts(test.att$Attrition)
+predicted.Attrition<- ifelse(test.probabilities > 0.5, "Yes", "No")
+mean(predicted.Attrition == test.att$Attrition)
+table(predicted.Attrition, test.att$Attrition)
+```
+
+
+## Diagnostic Testing Reg1
+
+I selected the reg1 model over the other three as there was evidence that one of the models outperformed the other fixed effects models. While Reg4 had the highest pseudo-R^2, reg1 had a lower AIC. Also, reg4's ICC was so poor that I am unsure of the value of including the random intercept for JobRole. 
+
+### Residual Independence
+
+#### Residual Plots
+
+```{r}
+if (!require(car)) install.packages("car")
+library(car)
+residualPlots(reg1)
+```
+
+Based on the above plots, there are little to no relationships between the residuals and the continuous independent variables in reg1. The p-values for the hypothesis tests related to this question are above 0.5. For now, I will not reject my null hypothesis that the continuous independent variables fit the logisti regression model well. 
+
+### Linearity of Relationshipe Between Continuous Ind Var and Natural Logs of Odds
+
+```{r}
+marginalModelPlots(reg1)
+```
+
+The estimated relationship between independent variables and Attrition and the model predictions for the relationship is strong as evidenced by the consistent overlap of the "Data" and "Model" lines. However, these relationships deviate from being linear. 
+
+```{r}
+linearity.check <- train.att %>%
+  select(Age, DistanceFromHome, TotalWorkingYears, YearsAtCompany, YearsInCurrentRole, YearsSinceLastPromotion)
+predictors <- colnames(linearity.check)
+linearity.check$probabilities <- reg1$fitted.values
+linearity.check <- linearity.check %>%
+  mutate(logit = log(probabilities/(1 - probabilities))) %>%
+  select(-probabilities) %>%
+  gather(key = "predictors", value = "predictor.values", -logit)
+ggplot(linearity.check, aes(y = logit, x = predictor.values)) +
+  geom_point() +
+  stat_smooth(method = "loess") +
+  theme_test() +
+  facet_wrap(~predictors, scales = "free_x")
+```
+
+I decided to assess the actual logits against the continuous independent variables. These grossly appear linear. What is more notable to me is the clustering of lower value logits. The way I visualized these plots disallows me from identifying if these reflect a specific level of a categorical independent variable. 
+
+For now, I will not plan on adding any polynomial terms or any other transformations. 
+
+### Nonadditivity 
+
+Conceptually, there could be some degree of interaction between or among these independent variables that I have not addressed. I am most concerned about an interaction between JobLevel and the temporal variables. 
+
+### Multicollineartiy 
+
+#### Correlation Matrix for Continuous Independent Variables
+
+```{r}
+reg1.cont.ind <- att[c("Age", "DistanceFromHome", "TotalWorkingYears", "YearsAtCompany", "YearsInCurrentRole", "YearsSinceLastPromotion")]
+cor(reg1.cont.ind)
+vif(reg1)
+```
+
+As expected in the initial model specifications, there are moderate to strong relationships among the temporal independent variables. Notably, Age and TotalWorkingYears, TotalWorkingYears and YearsAtCompany, and YearsInCurrentRole and YearsAtCompany.
+
+When considering the Variance Inflation Factor, YearsAtCompany is relatively large. I think it may be most reasonable to generate a new model by retaining all of the indepnedent variables save for YearsAtCompany. 
+
+### Zero Cell Count
+
+No participants rated their JobPerformance below a 3. Fortunately, I did not include this variable in any of my models. Therefore, I have no concerns regarding this modelling assumption. 
+
+### Complete Separation of Prediction 
+
+No independent variables perfectly or near perfectly predict the probabilities for Attrition. 
+
+### Outliers and Influential Observations 
+
+```{r}
+outlierTest(reg1)
+influenceIndexPlot(reg1)
+influencePlot(reg1)
+```
+
+Observations 328, 349, 964, 973, 1012, and 1221 demonstrated significant influence. When I re-specify the model without the YearsAtCompany variable, I will run it both with and without these observations. 
+
+## Updated Dataset and Model
+```{r}
+remove <- c(328, 349, 964, 973, 1012, 1221)
+train.att.No.Outlier<- train.att %>%
+  filter(!EmployeeID %in% remove)
+reg5 <- glm(Attrition ~ JobRole+Age+DistanceFromHome+TotalWorkingYears + YearsInCurrentRole + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime + MaritalStatus + JobInvolvement + JobSatisfaction + JobLevel, data = train.att, family = "binomial")
+summ(reg5, exp = TRUE, confint = TRUE)
+```
+
+
+### Diagnostic Testing Reg 5
+
+```{r}
+residualPlots(reg5)
+marginalModelPlots(reg5)
+linearity.check.new <-train.att.No.Outlier %>%
+  select(Age, DistanceFromHome, TotalWorkingYears, YearsInCurrentRole, YearsSinceLastPromotion)
+predictors.new <- colnames(linearity.check.new)
+linearity.check.new$probabilities <- reg5$fitted.values
+linearity.check.new <- linearity.check.new %>%
+  mutate(logit = log(probabilities/(1 - probabilities))) %>%
+  select(-probabilities) %>%
+  gather(key = "predictors", value = "predictor.values", -logit)
+ggplot(linearity.check.new, aes(y = logit, x = predictor.values)) +
+  geom_point() +
+  stat_smooth(method = "loess") +
+  theme_test() +
+  facet_wrap(~predictors, scales = "free_x")
+```
+
+
+## Conclusions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

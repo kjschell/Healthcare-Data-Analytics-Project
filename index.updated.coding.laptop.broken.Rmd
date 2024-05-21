@@ -1,0 +1,49 @@
+---
+title: "index.updated.desktop"
+output: html_document
+date: "2024-05-21"
+---
+
+```{r}
+if (!require(tidyverse)) install.packages("tidyverse")
+library(tidyverse)
+```
+
+
+#### This belongs in the section on Work Experience, ideally after financial but before temporal information
+```{r}
+ggplot(data = att, aes(x = OverTime, fill = OverTime)) +
+  geom_bar(color = "dimgrey")+
+  theme_test()+
+  labs(
+    title = "Over Time Status - All Participants",
+    subtitle = "Less Thank One Third Participate in Over Time"
+  ) +
+  scale_fill_manual(values = c("red4", "green4"))
+ggplot(data = att, aes(x = OverTime, fill = OverTime)) +
+  geom_bar(color = "dimgrey") +
+  theme_test() +
+  facet_wrap(~JobRole) +
+  labs(
+    title = "Over Time Participation by JobRole", 
+  subtitle = "Other Role Group Appears to Have Higher Percentage of Over Time Participation") +
+  scale_fill_manual(values = c("red4", "green4"))
+```
+
+#### This should go in Attrition, Under Financial but Ahead of Temporal Info
+
+```{r}
+ggplot(data = att, aes(x = Attrition, fill = Attrition)) +
+  geom_bar(color = "dimgrey") +
+  facet_wrap(~ OverTime) +
+  theme_test() +
+  scale_fill_manual(values = c("red4", "green4")) +
+  labs(
+    title = "Attrition by OverTime Participation - All Participants",
+    subtitle = "Much Higher Percentage of Over Time Participants Leave Job",
+    x = "No Over Time on Left, At Least Some Over Time on Right"
+  )
+```
+
+
+
