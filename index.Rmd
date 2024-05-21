@@ -946,9 +946,9 @@ library(car)
 residualPlots(reg1)
 ```
 
-Based on the above plots, there are little to no relationships between the residuals and the continuous independent variables in reg1. The p-values for the hypothesis tests related to this question are above 0.5. For now, I will not reject my null hypothesis that the continuous independent variables fit the logisti regression model well. 
+Based on the above plots, there are little to no relationships between the residuals and the continuous independent variables in reg1. Interestingly, the p-value for age is quite small. If I consider this one piece of evidence alone, I need to consider rejecting my null hypothesis that age fits the model well. I think the best course of action may be to compare two additional models, one with and one without age, alongside any additional changes that may arise with the continued assumption testing. 
 
-### Linearity of Relationshipe Between Continuous Ind Var and Natural Logs of Odds
+### Linearity of Relationships Between Continuous Ind Var and Natural Logs of Odds
 
 ```{r}
 marginalModelPlots(reg1)
@@ -992,7 +992,7 @@ vif(reg1)
 
 As expected in the initial model specifications, there are moderate to strong relationships among the temporal independent variables. Notably, Age and TotalWorkingYears, TotalWorkingYears and YearsAtCompany, and YearsInCurrentRole and YearsAtCompany.
 
-When considering the Variance Inflation Factor, YearsAtCompany is relatively large. I think it may be most reasonable to generate a new model by retaining all of the indepnedent variables save for YearsAtCompany. 
+When considering the Variance Inflation Factor, YearsAtCompany is relatively large. I think it may be most reasonable to generate a new model by retaining all of the independent variables save for YearsAtCompany. I will also consider whether or note to include Age based on comparing two models, one with and one without Age. 
 
 ### Zero Cell Count
 
@@ -1010,27 +1010,65 @@ influenceIndexPlot(reg1)
 influencePlot(reg1)
 ```
 
-Observations 328, 349, 964, 973, 1012, and 1221 demonstrated significant influence. When I re-specify the model without the YearsAtCompany variable, I will run it both with and without these observations. 
+Observations 317, 964, 973, 1221, and 1601 demonstrated significant influence. When I re-specify the model without the YearsAtCompany variable. I will remove these variables for the updated models. 
 
-## Updated Dataset and Model
+## Updated Dataset and Model {.tabset}
+
+Based on the Assumption Diagnostic Testing, I decided to definitively remove YearsAtCompany. Additionally, I will hold out the overly influencial observations. Lastly, I will create two models, one with Age and one without Age. 
+
+### New Models
+
 ```{r}
-remove <- c(328, 349, 964, 973, 1012, 1221)
+remove <- c(317, 964, 973, 1221, 1601)
 train.att.No.Outlier<- train.att %>%
   filter(!EmployeeID %in% remove)
 reg5 <- glm(Attrition ~ JobRole+Age+DistanceFromHome+TotalWorkingYears + YearsInCurrentRole + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime + MaritalStatus + JobInvolvement + JobSatisfaction + JobLevel, data = train.att, family = "binomial")
 summ(reg5, exp = TRUE, confint = TRUE)
+reg6 <- glm(Attrition ~ JobRole+ DistanceFromHome+TotalWorkingYears + YearsInCurrentRole + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime +MaritalStatus + JobInvolvement + JobSatisfaction + JobLevel, data = train.att, family = "binomial")
+summ(reg6, exp = TRUE, confint = TRUE)
 ```
 
+There was little change in compartive model performance with Age removed. Given this, I will move forward with diagnostic testing of Reg6.
 
-### Diagnostic Testing Reg 5
+### Diagnostic Testing Reg 6
 
 ```{r}
-residualPlots(reg5)
-marginalModelPlots(reg5)
+residualPlots(reg6)
+marginalModelPlots(reg6)
 linearity.check.new <-train.att.No.Outlier %>%
   select(Age, DistanceFromHome, TotalWorkingYears, YearsInCurrentRole, YearsSinceLastPromotion)
 predictors.new <- colnames(linearity.check.new)
-linearity.check.new$probabilities <- reg5$fitted.values
+linearity.check.new$probabilities <- reg6$fitted.values
+linearity.check.new <- linearity.check.new %>%
+  mutate(logit = log(probabilities/(1 - probabilities))) %>%
+  select(-probabilities) %>%
+  gather(key = "predictors", value = "predictor.values", -logit)
+ggplot(linearity.check.new, aes(y = logit, x = predictor.values)) +
+  geom_point() +
+  stat_smooth(method = "loess") +
+  theme_test() +
+  facet_wrap(~predictors, scales = "free_x")
+```
+
+Similar to the issue of Age in the initial model iterations, I now have evidence that TotalWorkingYears does not fit the logistic regression model well. I will generate an additional model with this variable removed and compare its performance against reg6.
+
+### Reg7
+```{r}
+reg7 <- glm(Attrition ~ JobRole+ DistanceFromHome + YearsInCurrentRole + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime +MaritalStatus + JobInvolvement + JobSatisfaction + JobLevel, data = train.att, family = "binomial")
+summ(reg6, exp = TRUE, confint = TRUE)
+```
+
+There is little change in model performance with and without TotalWorkingYears. Given this, I will move ahead with diagnosti testing of assumptions for the newest model, reg7.
+
+### Diagnostic Testing of Assumptions Reg7
+
+```{r}
+residualPlots(reg7)
+marginalModelPlots(reg7)
+linearity.check.new <-train.att.No.Outlier %>%
+  select(Age, DistanceFromHome, YearsInCurrentRole, YearsSinceLastPromotion)
+predictors.new <- colnames(linearity.check.new)
+linearity.check.new$probabilities <- reg7$fitted.values
 linearity.check.new <- linearity.check.new %>%
   mutate(logit = log(probabilities/(1 - probabilities))) %>%
   select(-probabilities) %>%
