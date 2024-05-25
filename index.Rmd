@@ -35,7 +35,7 @@ I also relabeled the JobRole level Admin to Administrative. This Admin level pre
 ```{r}
 if (!require(tidyverse)) install.packages("tidyverse")
 library(tidyverse)
-setwd("C:\\Users\\Kevin\\Documents\\Spring 2024 Data Analytics Project")
+setwd("C:\\Users\\kjsch\\OneDrive\\Documents\\Schell Data Analytics Portfolio\\Spring 2024 Data Analytics Project")
 att <- read.csv("watson_healthcare_modified.csv")
 att$Attrition<-as.factor(att$Attrition)
 att <- att %>%
