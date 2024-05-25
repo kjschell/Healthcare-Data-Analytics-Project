@@ -932,7 +932,7 @@ table(predicted.Attrition, test.att$Attrition)
 ```
 
 
-## Diagnostic Testing Reg1
+## Diagnostic Testing Reg1 {.tabset}
 
 I selected the reg1 model over the other three as there was evidence that one of the models outperformed the other fixed effects models. While Reg4 had the highest pseudo-R^2, reg1 had a lower AIC. Also, reg4's ICC was so poor that I am unsure of the value of including the random intercept for JobRole. 
 
