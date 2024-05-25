@@ -105,7 +105,7 @@ att<-att.na
 ```
 
 
-## Descriptive Statistics, Tables, and Visualizations {.tabset}
+## Descriptive Statistics and Visualizations {.tabset}
 
 ### Descriptive Statistics 
 
@@ -1012,7 +1012,7 @@ influencePlot(reg1)
 
 Observations 317, 964, 973, 1221, and 1601 demonstrated significant influence. When I re-specify the model without the YearsAtCompany variable. I will remove these variables for the updated models. 
 
-## Updated Dataset and Model {.tabset}
+## Updated Dataset & New Models {.tabset}
 
 Based on the Assumption Diagnostic Testing, I decided to definitively remove YearsAtCompany. Additionally, I will hold out the overly influencial observations. Lastly, I will create two models, one with Age and one without Age. 
 
@@ -1048,6 +1048,9 @@ ggplot(linearity.check.new, aes(y = logit, x = predictor.values)) +
   stat_smooth(method = "loess") +
   theme_test() +
   facet_wrap(~predictors, scales = "free_x")
+reg6.cont.ind <- att[c("DistanceFromHome", "TotalWorkingYears", "YearsInCurrentRole", "YearsSinceLastPromotion")]
+cor(reg6.cont.ind)
+vif(reg6)
 ```
 
 Similar to the issue of Age in the initial model iterations, I now have evidence that TotalWorkingYears does not fit the logistic regression model well. I will generate an additional model with this variable removed and compare its performance against reg6.
