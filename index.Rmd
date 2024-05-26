@@ -277,10 +277,14 @@ ggplot(data = att, aes(x = DistanceFromHome)) +
     subtitle = "Most Live Close to Workplace, Skews Farther Away "
   )
 ggplot(data = att, aes(x = JobRole, y = DistanceFromHome, fill = JobRole)) +
-  geom_boxplot() +
+  geom_boxplot(show.legend = FALSE) +
   theme_test() +
     scale_y_continuous(breaks = round(seq(min(att$DistanceFromHome), max(att$DistanceFromHome), by = 2),1)) +
-  scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4"))
+  scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4")) +
+  labs(
+    title = "Distance from Home by JobRole",
+    subtitle = "Relatively Similar Across Role Groups"
+  )
 
 ```
 
@@ -296,7 +300,7 @@ ggplot(data = att, aes(x = BusinessTravel, fill= BusinessTravel)) +
     subtitle = "Most Respondents Rarely Travel"
   )
 ggplot(data = att, aes(x = BusinessTravel, fill = BusinessTravel)) +
-  geom_bar(color = "dimgrey") +
+  geom_bar(color = "dimgrey", show.legend = FALSE) +
   scale_fill_manual(values = c("cyan3", "cadetblue3", "cadetblue")) +
   theme_test() +
   facet_wrap(~JobRole) +
@@ -319,7 +323,7 @@ ggplot(data = att, aes(x = HourlyRate)) +
     subtitle = "Bimodal Distribution"
   )
 ggplot(data = att, aes(x = JobRole, y = HourlyRate, fill = JobRole)) +
-  geom_boxplot() +
+  geom_boxplot(show.legend = FALSE) +
   theme_test() +
     scale_y_continuous(breaks = round(seq(min(att$HourlyRate), max(att$HourlyRate), by = 5),1)) +
   scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4")) +
@@ -342,7 +346,7 @@ ggplot(data = att, aes(x = PercentSalaryHike)) +
     subtitle = "Marked Skew Toward Higher Percent Salary Changes"
   )
 ggplot(data = att, aes(x = JobRole, y = PercentSalaryHike, fill = JobRole)) +
-  geom_boxplot() +
+  geom_boxplot(show.legend = FALSE) +
   theme_test() +
     scale_y_continuous(breaks = round(seq(min(att$PercentSalaryHike), max(att$PercentSalaryHike), by = 1),1)) +
   scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4")) +
@@ -386,7 +390,7 @@ ggplot(data = att, aes(x = TotalWorkingYears)) +
     subtitle = "Marked Drop around 12 Years & Heavily Skewed toward Long Careers"
   )
 ggplot(data = att, aes(x = JobRole, y = TotalWorkingYears, fill = JobRole)) +
-  geom_boxplot() +
+  geom_boxplot(show.legend = FALSE) +
   theme_test() +
     scale_y_continuous(breaks = round(seq(min(att$TotalWorkingYears), max(att$TotalWorkingYears), by = 5),1)) +
   scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4")) +
@@ -409,7 +413,7 @@ ggplot(data = att, aes (x = YearsAtCompany)) +
     subtitle = "Most Respondents with Less Than 10 Years at Company"
   )
 ggplot(data = att, aes(x = JobRole, y = YearsAtCompany, fill = JobRole)) +
-  geom_boxplot() +
+  geom_boxplot(show.legend = FALSE) +
   theme_test() +
     scale_y_continuous(breaks = round(seq(min(att$YearsAtCompany), max(att$YearsAtCompany), by = 5),1)) +
   scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4")) +
@@ -432,7 +436,7 @@ ggplot(data = att, aes (x = YearsInCurrentRole)) +
     subtitle = "Multimodal Distribution"
   )
 ggplot(data = att, aes(x = JobRole, y = YearsInCurrentRole, fill = JobRole)) +
-  geom_boxplot() +
+  geom_boxplot(show.legend = FALSE) +
   theme_test() +
    scale_y_continuous(breaks = round(seq(min(att$YearsInCurrentRole), max(att$YearsInCurrentRole), by = 5),1)) +
   scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4")) +
@@ -455,7 +459,7 @@ ggplot(data = att, aes (x = YearsSinceLastPromotion)) +
     subtitle = "Most Respondents with Promotion in Last 2 Years"
   )
 ggplot(data = att, aes(x = JobRole, y = YearsSinceLastPromotion, fill = JobRole)) +
-  geom_boxplot() +
+  geom_boxplot(show.legend = FALSE) +
   theme_test() +
    scale_y_continuous(breaks = round(seq(min(att$YearsSinceLastPromotion), max(att$YearsSinceLastPromotion), by = 5),1)) +
   scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4")) +
