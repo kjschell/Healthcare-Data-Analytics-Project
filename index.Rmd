@@ -20,7 +20,7 @@ To cite Nate Bargatze, "Hello World!"
 
 As you can see above, my name is Kevin Schell. I am a practicing physical therapist with over twelve years of clinical experience working with adults admitted to a major academic medical center in Boston. I am a board-certified clinical specialist in geriatric physical therapy and have provided physical therapy care to adults across all specialties including critical care environments and the hospital's emergency department. In fact, my time working in the emergency department ignited a new passion for me to take my clinical experience and (hopefully) positively impact the patient experience at a different level from one-on-one patient care. To this end, I am currently pursuing a [Master of Science in Healthcare Data Analytics at the MGH Institute of Health Professions](https://www.mghihp.edu/healthcare-leadership/degrees-programs/ms-healthcare-data-analytics). 
 
-To supplement my learning, I have used different publicly available datasets to practice visualization techniques while looking for potential associations to further investigate with statistical analyses. Most recently, I utilized [Employee Attrition from Healthcare](https://www.kaggle.com/datasets/jpmiller/employee-attrition-for-healthcare) from Kaggle. Please feel free to peruse the rest of this site to see my efforts related to this project.
+To supplement my learning, I have used different publicly available datasets to practice visualization techniques while looking for potential associations to further investigate with statistical analyses. Most recently, I utilized [Employee Attrition from Healthcare](https://www.kaggle.com/datasets/jpmiller/employee-attrition-for-healthcare) from Kaggle. In particular, I worked through logistic regression modeling to identify independent risk factors associated with healthcare works leaving their jobs. Please feel free to peruse the rest of this site to see my efforts related to this project.
 
 ### Dataset
 
@@ -134,6 +134,8 @@ summary(att.nomord)
 
 
 ### Demographics
+
+**Please see each visualization's subtitle for takeaway messages**
 
 #### Age, All Roles
 ```{r}
@@ -258,6 +260,8 @@ ggplot(data = att, aes(x = MaritalStatus, fill = Gender)) +
 
 
 ### Work Experience
+
+**Please see each visualization's subtitle for takeaway messages**
 
 #### Travel Distance, Home to Workplace
 
@@ -475,6 +479,8 @@ ggplot(data = att, aes(x = JobLevel, fill = JobLevel)) +
 
 ### Quality of Life Measures
 
+**Please see each visualization's subtitle for takeaway messages**
+
 #### Job Satisfaction 
 
 ```{r}
@@ -611,6 +617,8 @@ ggplot(data = att, aes(x = PerformanceRating, fill = PerformanceRating)) +
 
 
 ### Attrition
+
+**Please see each visualization's subtitle for takeaway messages**
 
 #### All Respondents and By JobRole
 ```{r}
