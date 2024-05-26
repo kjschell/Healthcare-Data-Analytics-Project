@@ -171,7 +171,7 @@ ggplot(data = att, aes(x = "", y=Age)) +
 
 ```{r}
 ggplot(data = att, aes(x = JobRole, fill = JobRole)) +
-  geom_bar(color = "dimgrey") +
+  geom_bar(color = "dimgrey", show.legend = FALSE) +
   theme_test() +
   scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4")) +
   labs(
@@ -185,18 +185,19 @@ ggplot(data = att, aes(x = JobRole, fill = JobRole)) +
 
 ```{r}
 ggplot(data = att, aes(Age, fill = JobRole)) +
-  geom_histogram(binwidth = 2, color = "dimgrey") +
+  geom_histogram(binwidth = 2, color = "dimgrey", show.legend = FALSE) +
   facet_wrap(~att$JobRole) +
   theme_test()+
   scale_fill_manual(values = c("dodgerblue4", "hotpink4", "lightyellow2", "seagreen4")) +
   labs(
     title = "Age of Respondents by JobRole",
+    subtitle = "Admin Relatively Older, Nurses with Narrower Distribution",
     x = "Age in Years",
     y = "Count of Respondents"
   )
 
 ggplot(data = att, aes(x = JobRole, y = Age, fill = JobRole)) +
-  geom_boxplot(color = "grey6") +
+  geom_boxplot(color = "grey6", show.legend = FALSE) +
   theme_test() +
   labs(
     title = "Age by JobRole",
@@ -211,7 +212,7 @@ ggplot(data = att, aes(x = JobRole, y = Age, fill = JobRole)) +
 
 ```{r}
 ggplot(data = att, aes(x = Gender, fill = Gender)) +
-  geom_bar() +
+  geom_bar(show.legend = FALSE) +
   scale_fill_manual(values = c("hotpink4", "dodgerblue4")) +
   theme_test() +
   labs(
@@ -618,7 +619,7 @@ ggplot(data = att, aes(x = PerformanceRating, fill = PerformanceRating)) +
 
 ### Attrition
 
-**Please see each visualization's subtitle for takeaway messages**
+
 
 #### All Respondents and By JobRole
 ```{r}
