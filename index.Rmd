@@ -121,7 +121,9 @@ att.continuous <- att %>%
 select(Age, DailyRate, DistanceFromHome, Education, HourlyRate, MonthlyIncome, MonthlyRate, NumCompaniesWorked, PercentSalaryHike, StandardHours, TotalWorkingYears, YearsAtCompany, YearsInCurrentRole,YearsSinceLastPromotion, YearsWithCurrManager)
 summary(att.continuous)
 ```
-**Nominal and Ordinal** 
+**Nominal and Ordinal Variables** 
+
+The sample is imbalanced across the outcome of interest, Attrition. Additionally, male gender is grossly overrepresented. Nurse is the most common role identified, and most participants are single and early in their careers. Interestingly, most participants rate their WorkLifeBalance positively. 
 
 ```{r}
 att.nomord<-att%>%
