@@ -490,7 +490,7 @@ ggplot(data = att, aes(x = JobLevel, fill = JobLevel)) +
 
 ```{r}
 ggplot(data = att, aes(x = JobSatisfaction, fill = JobSatisfaction)) +
-  geom_bar(color = "dimgrey") +
+  geom_bar(color = "dimgrey", show.legend = FALSE) +
   scale_fill_manual(values = c("azure", "azure2", "azure3", "azure4")) +
   theme_test() +
   labs(
@@ -512,7 +512,7 @@ ggplot(data = att, aes(x = JobSatisfaction, fill = JobSatisfaction)) +
 
 ```{r}
 ggplot(data = att, aes(x = EnvironmentSatisfaction, fill = EnvironmentSatisfaction)) +
-  geom_bar(color = "dimgrey") +
+  geom_bar(color = "dimgrey", show.legend = FALSE) +
   scale_fill_manual(values = c("azure", "azure2", "azure3", "azure4")) +
   theme_test() +
   labs(
@@ -533,7 +533,7 @@ ggplot(data = att, aes(x = EnvironmentSatisfaction, fill = EnvironmentSatisfacti
 
 ```{r}
 ggplot(data = att, aes(x = WorkLifeBalance, fill = WorkLifeBalance)) +
-  geom_bar(color = "dimgrey") +
+  geom_bar(color = "dimgrey", show.legend = FALSE) +
   scale_fill_manual(values = c("azure", "azure2", "azure3", "azure4")) +
   theme_test() +
   labs(
@@ -556,7 +556,7 @@ ggplot(data = att, aes(x = WorkLifeBalance, fill = WorkLifeBalance)) +
 
 ```{r}
 ggplot(data = att, aes(x = RelationshipSatisfaction, fill = RelationshipSatisfaction)) +
-  geom_bar(color = "dimgrey") +
+  geom_bar(color = "dimgrey", show.legend = FALSE) +
   scale_fill_manual(values = c("azure", "azure2", "azure3", "azure4")) +
   theme_test()+
   labs(
@@ -579,7 +579,7 @@ ggplot(data = att, aes(x = JobSatisfaction, fill = JobSatisfaction)) +
 
 ```{r}
 ggplot(data = att, aes(x = JobInvolvement, fill = JobInvolvement)) +
-  geom_bar(color = "dimgrey") +
+  geom_bar(color = "dimgrey", show.legend = FALSE) +
   scale_fill_manual(values = c("azure", "azure2", "azure3", "azure4")) +
   theme_test() +
   labs(
@@ -601,7 +601,7 @@ ggplot(data = att, aes(x = JobInvolvement, fill = JobInvolvement)) +
 
 ```{r}
 ggplot(data = att, aes(x = PerformanceRating, fill = PerformanceRating)) +
-  geom_bar(color = "dimgrey") +
+  geom_bar(color = "dimgrey", show.legend = FALSE) +
   scale_fill_manual(values = c("azure3", "azure4")) +
   theme_test() +
   labs(
@@ -628,7 +628,7 @@ ggplot(data = att, aes(x = PerformanceRating, fill = PerformanceRating)) +
 #### All Respondents and By JobRole
 ```{r}
 ggplot(data = att, aes(x = Attrition, fill = Attrition)) +
-  geom_bar(color = "dimgrey") +
+  geom_bar(color = "dimgrey", show.legend = FALSE) +
   theme_test() + 
   scale_fill_manual(values = c("red4", "green4")) +
   labs(
@@ -656,15 +656,6 @@ ggplot(data = att, aes(x = Gender, fill = Attrition)) +
     title = "Attrition by Gender", 
     subtitle = "Similar Experiences for Male and Female Gender"
   )
-ggplot(data = att, aes(x = Attrition, fill = Attrition)) +
-  geom_bar(color = "dimgrey") +
-  facet_wrap(~Gender) +
-  theme_test() +
-  scale_fill_manual(values = c("red4", "green4"))
-  labs(
-    title = "Attrition Separated by Gender",
-    subtitle = "Slightly Greater Percentage of Female Gender Group Left Job"
-  )
 addmargins(table(att$Gender, att$Attrition))
 Percent_Female_Attrition <- 86/678
 Percent_Male_Attrition <- 113/998
@@ -675,7 +666,7 @@ Percent_Male_Attrition
 #### Age by Attrition Status
 ```{r}
 ggplot(data = att, aes(x = Attrition, y = Age, fill = Attrition)) + 
-  geom_boxplot() +
+  geom_boxplot(show.legend = FALSE) +
   theme_test() +
   scale_fill_manual(values = c("red4", "green4")) +
   labs(
@@ -687,7 +678,7 @@ ggplot(data = att, aes(x = Attrition, y = Age, fill = Attrition)) +
 #### Distance From Home by Attrition Status
 ```{r}
 ggplot(data = att, aes(x = Attrition, y = DistanceFromHome, fill = Attrition)) +
-  geom_boxplot(color = "dimgrey") +
+  geom_boxplot(color = "dimgrey", show.legend = FALSE) +
   theme_test() +
   scale_fill_manual(values = c("red4", "green4")) +
   labs(
@@ -699,7 +690,7 @@ ggplot(data = att, aes(x = Attrition, y = DistanceFromHome, fill = Attrition)) +
 #### Hourly Rate by Attrition Status
 ```{r}
 ggplot(data = att, aes(x = Attrition, y = HourlyRate, fill = Attrition)) +
-  geom_boxplot() +
+  geom_boxplot(show.legend = FALSE) +
   theme_test() +
   scale_fill_manual(values = c("red4", "green4")) +
   labs(
@@ -712,7 +703,7 @@ ggplot(data = att, aes(x = Attrition, y = HourlyRate, fill = Attrition)) +
 
 ```{r}
 ggplot(data = att, aes(x = Attrition, fill = Attrition)) +
-  geom_bar(color = "dimgrey") +
+  geom_bar(color = "dimgrey", show.legend = FALSE) +
   facet_wrap(~ OverTime) +
   theme_test() +
   scale_fill_manual(values = c("red4", "green4")) +
@@ -729,7 +720,7 @@ ggplot(data = att, aes(x = Attrition, fill = Attrition)) +
 #### Percent Salary Hike by Attrition Status
 ```{r}
 ggplot(data = att, aes(x = Attrition, y = PercentSalaryHike, fill = Attrition)) +
-  geom_boxplot(color = "dimgrey") +
+  geom_boxplot(color = "dimgrey", show.legend = FALSE) +
   theme_test() +
   scale_fill_manual(values = c("red4", "green4")) +
   labs(
@@ -741,7 +732,7 @@ ggplot(data = att, aes(x = Attrition, y = PercentSalaryHike, fill = Attrition)) 
 #### Total Working Years by Attrition Status
 ```{r}
 ggplot(data = att, aes(x = Attrition, y = TotalWorkingYears, fill = Attrition)) +
-  geom_boxplot(color = "dimgrey") +
+  geom_boxplot(color = "dimgrey", show.legend = FALSE) +
   theme_test() +
   scale_fill_manual(values = c("red4", "green4")) +
   labs(
@@ -753,7 +744,7 @@ ggplot(data = att, aes(x = Attrition, y = TotalWorkingYears, fill = Attrition)) 
 #### Years at Current Company 
 ```{r}
 ggplot(data = att, aes(x = Attrition, y = YearsAtCompany, fill = Attrition)) +
-  geom_boxplot(color = "dimgrey") +
+  geom_boxplot(color = "dimgrey", show.legend = FALSE) +
   theme_test() +
   scale_fill_manual(values = c("red4", "green4")) +
   labs(
@@ -765,7 +756,7 @@ ggplot(data = att, aes(x = Attrition, y = YearsAtCompany, fill = Attrition)) +
 #### Years in Current Role by Attrition Status 
 ```{r}
 ggplot(data = att, aes(x = Attrition, y = YearsInCurrentRole, fill = Attrition)) +
-  geom_boxplot(color = "dimgrey") +
+  geom_boxplot(color = "dimgrey", show.legend = FALSE) +
   theme_test()+
   scale_fill_manual(values = c("red4", "green4")) +
   labs(
@@ -777,7 +768,7 @@ ggplot(data = att, aes(x = Attrition, y = YearsInCurrentRole, fill = Attrition))
 #### Years Since Last Promotion
 ```{r}
 ggplot(data = att, aes(x = Attrition, y = YearsSinceLastPromotion, fill = Attrition)) +
-  geom_boxplot(color = "dimgrey") +
+  geom_boxplot(color = "dimgrey", show.legend = FALSE) +
   theme_test() +
   scale_fill_manual(values = c("red4", "green4")) +
   labs(
