@@ -67,6 +67,9 @@ md.pattern(att)
 ```
 
 #### Descriptive Statistics of Dataset with Missing Values Included
+
+
+
 ```{r}
 att.continuous <- att %>%
 select(Age, DailyRate, DistanceFromHome, Education, HourlyRate, MonthlyIncome, MonthlyRate, NumCompaniesWorked, PercentSalaryHike, StandardHours, TotalWorkingYears, YearsAtCompany, YearsInCurrentRole,YearsSinceLastPromotion, YearsWithCurrManager)
@@ -109,10 +112,18 @@ att<-att.na
 
 ### Descriptive Statistics 
 
+**Continuous Variables** 
+
+Based on the basic descriptive statistics, the sample at large reflects a relatively young group of workers that skews older that live relatively close to home and earn an average hourly rate well above the average for US healthcare workers ([US Bureau of Labor Statistics](https://www.bls.gov/ooh/healthcare/home.htm), 2023). Additionally, most participants have worked at only one company, however, the sample is skewed greatly by those who have worked for several organizations. Interestingly, most participants have been promoted within the last year. 
+
 ```{r}
 att.continuous <- att %>%
 select(Age, DailyRate, DistanceFromHome, Education, HourlyRate, MonthlyIncome, MonthlyRate, NumCompaniesWorked, PercentSalaryHike, StandardHours, TotalWorkingYears, YearsAtCompany, YearsInCurrentRole,YearsSinceLastPromotion, YearsWithCurrManager)
 summary(att.continuous)
+```
+**Nominal and Ordinal** 
+
+```{r}
 att.nomord<-att%>%
   select(!c(EmployeeID, Age, DailyRate, DistanceFromHome, Education, HourlyRate, MonthlyIncome, MonthlyRate, NumCompaniesWorked, PercentSalaryHike, StandardHours, TotalWorkingYears, TrainingTimesLastYear, YearsAtCompany, YearsInCurrentRole,YearsSinceLastPromotion, YearsWithCurrManager))
 summary(att.nomord)
@@ -1093,7 +1104,9 @@ ggplot(linearity.check.new, aes(y = logit, x = predictor.values)) +
 
 
 
+## References
 
+https://www.bls.gov/ooh/healthcare/home.htm
 
 
 
