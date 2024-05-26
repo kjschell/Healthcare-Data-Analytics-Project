@@ -932,18 +932,6 @@ lrtest(reg1, reg3)
 lrtest(reg2, reg3)
 ```
 
-### Reg1 Performance on Test Data
-
-```{r}
-if (!require(caret)) install.packages("caret")
-library(caret)
-test.probabilities <- predict(reg1, test.att, type = "response")
-contrasts(test.att$Attrition)
-predicted.Attrition<- ifelse(test.probabilities > 0.5, "Yes", "No")
-mean(predicted.Attrition == test.att$Attrition)
-table(predicted.Attrition, test.att$Attrition)
-```
-
 
 ## Diagnostic Testing Reg1 {.tabset}
 
@@ -1082,7 +1070,7 @@ There is little change in model performance with and without TotalWorkingYears. 
 residualPlots(reg7)
 marginalModelPlots(reg7)
 linearity.check.new <-train.att.No.Outlier %>%
-  select(Age, DistanceFromHome, YearsInCurrentRole, YearsSinceLastPromotion)
+  select(DistanceFromHome, YearsInCurrentRole, YearsSinceLastPromotion)
 predictors.new <- colnames(linearity.check.new)
 linearity.check.new$probabilities <- reg7$fitted.values
 linearity.check.new <- linearity.check.new %>%
@@ -1094,7 +1082,23 @@ ggplot(linearity.check.new, aes(y = logit, x = predictor.values)) +
   stat_smooth(method = "loess") +
   theme_test() +
   facet_wrap(~predictors, scales = "free_x")
+reg7.cont.ind <- att[c("DistanceFromHome", "YearsInCurrentRole", "YearsSinceLastPromotion")]
+cor(reg7.cont.ind)
+vif(reg7)
 ```
+
+#### Reg7 Performance, Test Data
+
+```{r}
+if (!require(caret)) install.packages("caret")
+library(caret)
+test.probabilities <- predict(reg7, test.att, type = "response")
+contrasts(test.att$Attrition)
+predicted.Attrition<- ifelse(test.probabilities > 0.5, "Yes", "No")
+mean(predicted.Attrition == test.att$Attrition)
+table(predicted.Attrition, test.att$Attrition)
+```
+
 
 
 ## Conclusions
