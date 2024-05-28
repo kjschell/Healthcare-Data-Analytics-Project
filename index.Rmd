@@ -55,9 +55,9 @@ str(att)
 
 ### Addressing Missingness 
 
-Out of the 34 variables included in this dataset, only JobLevel includes potentially missing values. There are 81 observations with "NA" as their value for JobLevel. It is possible that "NA" accurately reflects these observations' JobLevel. In other words, there may be 81 respondents whose roles do not include ascending levels. However, it is also possible that some respondents may have inadvertently failed to respond to this question, or there may have been a transcription error when this dataset was generated from the raw data. Without knowing how this fabricated data was "collected," it is impossible to know for certain. 
+Out of the 34 variables included in this dataset, only JobLevel contained missing values. There are 81 observations with "NA" as their value for JobLevel. It is possible that "NA" accurately reflects these observations' JobLevel. In other words, there may be 81 respondents whose roles do not include ascending levels. However, it is also possible that some respondents may have inadvertently failed to respond to this question, or there may have been a transcription error when this dataset was generated from the raw data. Without knowing how this fabricated data was "collected," it is impossible to know for certain. 
 
-Below you will find my initial analysis of missingness using the mice package. The analysis confirmed that only JobLevel had missing values. Summaries of sdatasets with all observations and one with observations removed for missing JobLevel are included below as well. Had the differences been more egregious, I would have considered imputation of JobLevel. However, given the lack of clarity regarding the meaning of NA combined with only subtle differences and relatively small percentage of missing values, I decided I would remove the observations with missing values and use this dataset if JobLevel appeared relevant to include when specifying models. Visual analysis of Attrition by JobLevel demonstrates that a higher percentage of respondents with lower job level leave their role. Given this, I decided to go forward with the dataset with observations removed for missingness. 
+Below you will find my initial analysis of missingness using the mice package. The analysis confirmed that only JobLevel had missing values. Summaries of datasets with all observations and one with observations removed for missing JobLevel are included below as well. Had the differences been more egregious, I would have considered imputation of JobLevel for those with missing levels. However, given the lack of clarity regarding the meaning of NA combined with only subtle differences and relatively small percentage of missing values, I decided I would remove the observations with missing values when specifying models. 
 
 
 ```{r}
@@ -1063,10 +1063,10 @@ Similar to the issue of Age in the initial model iterations, I now have evidence
 ### Reg7
 ```{r}
 reg7 <- glm(Attrition ~ JobRole+ DistanceFromHome + YearsInCurrentRole + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime +MaritalStatus + JobInvolvement + JobSatisfaction + JobLevel, data = train.att, family = "binomial")
-summ(reg6, exp = TRUE, confint = TRUE)
+summ(reg7, exp = TRUE, confint = TRUE)
 ```
 
-There is little change in model performance with and without TotalWorkingYears. Given this, I will move ahead with diagnosti testing of assumptions for the newest model, reg7.
+There is little change in model performance with and without TotalWorkingYears. Given this, I will move ahead with diagnostic testing of assumptions for the newest model, reg7.
 
 ### Diagnostic Testing of Assumptions Reg7
 
@@ -1089,7 +1089,25 @@ ggplot(linearity.check.new, aes(y = logit, x = predictor.values)) +
 reg7.cont.ind <- att[c("DistanceFromHome", "YearsInCurrentRole", "YearsSinceLastPromotion")]
 cor(reg7.cont.ind)
 vif(reg7)
+outlierTest(reg7)
+influenceIndexPlot(reg7)
+influencePlot(reg7)
 ```
+
+
+
+```{r}
+remove <- c(317, 572, 834, 973, 1084, 1221)
+train.att.reg7 <- train.att %>%
+  filter(EmployeeID != (remove))
+dim(train.att.reg7)
+reg7.no.outlier <- glm(Attrition ~ JobRole+ DistanceFromHome + YearsInCurrentRole + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime +MaritalStatus + JobInvolvement + JobSatisfaction + JobLevel, data = train.att.reg7, family = "binomial")
+summ(reg7.no.outlier, exp = TRUE, confint = TRUE)
+AIC(reg7, reg7.no.outlier)
+influencePlot(reg7.no.outlier)
+```
+
+
 
 #### Reg7 Performance, Test Data
 
