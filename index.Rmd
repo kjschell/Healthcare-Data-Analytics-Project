@@ -50,7 +50,6 @@ att$PerformanceRating<-factor(att$PerformanceRating, ordered = TRUE, levels = c(
 att$BusinessTravel<-factor(att$BusinessTravel, ordered = TRUE, levels = c("Non-Travel", "Travel_Rarely", "Travel_Frequently"))
 att$WorkLifeBalance<-factor(att$WorkLifeBalance, ordered = TRUE, levels = c("1", "2", "3", "4"))
 att$Shift<-as.factor(att$Shift)
-str(att)
 ```
 
 ### Addressing Missingness 
@@ -1010,23 +1009,30 @@ No independent variables perfectly or near perfectly predict the probabilities f
 ### Outliers and Influential Observations 
 
 ```{r}
-outlierTest(reg1)
-influenceIndexPlot(reg1)
+outlierTest(reg1, labels = train.att$EmployeeID)
 influencePlot(reg1)
 ```
 
-Observations 317, 964, 973, 1221, and 1601 demonstrated significant influence. When I re-specify the model without the YearsAtCompany variable. I will remove these variables for the updated models. 
+Observations 317, 964, 973, 1221, and 1601 demonstrated significant influence. I will investigate these observations by first looking at these observations  
+
+```{r}
+
+```
+
+```{r}
+train.att %>%
+  slice(1)
+head(train.att, 1)
+```
+
 
 ## Updated Dataset & New Models {.tabset}
 
-Based on the Assumption Diagnostic Testing, I decided to definitively remove YearsAtCompany. Additionally, I will hold out the overly influencial observations. Lastly, I will create two models, one with Age and one without Age. 
+Based on the Assumption Diagnostic Testing, I decided to definitively remove YearsAtCompany. Lastly, I will create two models, one with Age and one without Age. 
 
 ### New Models
 
 ```{r}
-remove <- c(317, 964, 973, 1221, 1601)
-train.att.No.Outlier<- train.att %>%
-  filter(!EmployeeID %in% remove)
 reg5 <- glm(Attrition ~ JobRole+Age+DistanceFromHome+TotalWorkingYears + YearsInCurrentRole + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime + MaritalStatus + JobInvolvement + JobSatisfaction + JobLevel, data = train.att, family = "binomial")
 summ(reg5, exp = TRUE, confint = TRUE)
 reg6 <- glm(Attrition ~ JobRole+ DistanceFromHome+TotalWorkingYears + YearsInCurrentRole + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime +MaritalStatus + JobInvolvement + JobSatisfaction + JobLevel, data = train.att, family = "binomial")
@@ -1097,11 +1103,7 @@ influencePlot(reg7)
 
 
 ```{r}
-remove <- c(317, 572, 834, 973, 1084, 1221)
-train.att.reg7 <- train.att %>%
-  filter(EmployeeID != (remove))
-dim(train.att.reg7)
-reg7.no.outlier <- glm(Attrition ~ JobRole+ DistanceFromHome + YearsInCurrentRole + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime +MaritalStatus + JobInvolvement + JobSatisfaction + JobLevel, data = train.att.reg7, family = "binomial")
+reg7.no.outlier <- glm(Attrition ~ JobRole+ DistanceFromHome + YearsInCurrentRole + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime +MaritalStatus + JobInvolvement + JobSatisfaction + JobLevel, data = train.att, family = "binomial")
 summ(reg7.no.outlier, exp = TRUE, confint = TRUE)
 AIC(reg7, reg7.no.outlier)
 influencePlot(reg7.no.outlier)
