@@ -1013,20 +1013,32 @@ outlierTest(reg1, labels = train.att$EmployeeID)
 influencePlot(reg1)
 ```
 
-Observations 317, 964, 973, 1221, and 1601 demonstrated significant influence. I will investigate these observations by first looking at these observations  
+Observations 317, 964, 973, 1221, and 1601 demonstrated significant influence. I will investigate these observations by first by pulling them into their own table. I will then highlight them on scatterplots of the continuous variables.
 
 ```{r}
-
+Outliers.reg1 <- train.att %>%
+  filter(EmployeeID %in% c(1230043, 1536328, 1081600, 1675357, 1553672)) %>%
+  select(EmployeeID, JobRole, Age, DistanceFromHome, TotalWorkingYears, YearsAtCompany, YearsInCurrentRole, YearsSinceLastPromotion, EnvironmentSatisfaction, OverTime, MaritalStatus, JobInvolvement, JobSatisfaction, JobLevel)
+print(Outliers.reg1)
+ggplot(data = train.att, aes(x = Age)) +
+  geom_histogram(binwidth = 2, color = "dimgrey", fill = "grey65") +
+  annotate(geom = "text", x = 47, y = 10, label = "155367", color = "dodgerblue4", size = 2.5) + 
+  annotate(geom = "text", x = 49, y = 5, label = "1230043", color = "hotpink4", size = 2.5) +
+   annotate(geom = "text", x = 47, y = 20, label = "1675357", color = "hotpink4", size = 2.5) +
+   annotate(geom = "text", x = 58, y = 23, label = "1536328", color = "seagreen4", size = 2.5) +
+   annotate(geom = "text", x = 55, y = 20, label = "1081600", color = "hotpink4", size = 2.5) + 
+  theme_test() +
+  labs(
+    x = "Age",
+    y = "Count",
+    title = "Potential Outliers' Ages",
+    subtitle = "All toward Upper Limit but Reasonable Values"
+  )
+  
 ```
 
-```{r}
-train.att %>%
-  slice(1)
-head(train.att, 1)
-```
 
-
-## Updated Dataset & New Models {.tabset}
+## New Models {.tabset}
 
 Based on the Assumption Diagnostic Testing, I decided to definitively remove YearsAtCompany. Lastly, I will create two models, one with Age and one without Age. 
 
@@ -1046,7 +1058,7 @@ There was little change in compartive model performance with Age removed. Given 
 ```{r}
 residualPlots(reg6)
 marginalModelPlots(reg6)
-linearity.check.new <-train.att.No.Outlier %>%
+linearity.check.new <-train.att %>%
   select(Age, DistanceFromHome, TotalWorkingYears, YearsInCurrentRole, YearsSinceLastPromotion)
 predictors.new <- colnames(linearity.check.new)
 linearity.check.new$probabilities <- reg6$fitted.values
@@ -1079,7 +1091,7 @@ There is little change in model performance with and without TotalWorkingYears. 
 ```{r}
 residualPlots(reg7)
 marginalModelPlots(reg7)
-linearity.check.new <-train.att.No.Outlier %>%
+linearity.check.new <-train.att %>%
   select(DistanceFromHome, YearsInCurrentRole, YearsSinceLastPromotion)
 predictors.new <- colnames(linearity.check.new)
 linearity.check.new$probabilities <- reg7$fitted.values
