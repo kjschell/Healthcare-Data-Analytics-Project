@@ -158,7 +158,7 @@ ggplot(data = att, aes(x = "", y=Age)) +
     axis.ticks.x = element_blank(),
     axis.text.x = element_blank()
   ) +
-  geom_boxplot(width = 0.15, color = "hotpink4") +
+  geom_boxplot(width = 0.15, color = "hotpink4", show.legend = FALSE) +
   labs(
     title = "Age of Respondents",
     subtitle = "Older Skew Apparent in Shape",
@@ -201,7 +201,7 @@ ggplot(data = att, aes(x = JobRole, y = Age, color = JobRole)) +
   geom_violin(show.legend = FALSE) +
   geom_jitter(show.legend = FALSE, shape = 20, alpha = 0.33) +
   theme_test() +
-  geom_boxplot(width = 0.15) +
+  geom_boxplot(width = 0.15, show.legend = FALSE) +
   labs(
     title = "Age by JobRole",
     subtitle = "Admin/Administrative Relatively Older"
@@ -286,7 +286,7 @@ ggplot(data = att, aes(x = JobRole, y = DistanceFromHome, color = JobRole)) +
   theme_test() +
     scale_y_continuous(breaks = round(seq(min(att$DistanceFromHome), max(att$DistanceFromHome), by = 2),1)) +
   scale_color_manual(values = c("dodgerblue4", "hotpink4", "lightyellow4", "seagreen4")) +
-  geom_boxplot(width = 0.15) +
+  geom_boxplot(width = 0.15, show.legend = FALSE) +
   labs(
     title = "Distance from Home by JobRole",
     subtitle = "Relatively Similar Across Role Groups"
@@ -331,7 +331,7 @@ ggplot(data = att, aes(x = HourlyRate)) +
 ggplot(data = att, aes(x = JobRole, y = HourlyRate, color = JobRole)) +
   geom_violin(show.legend = FALSE) +
   geom_jitter(show.legend = FALSE, shape = 20, alpha = 0.33) +
-  geom_boxplot(width = 0.15) +
+  geom_boxplot(width = 0.15, show.legend = FALSE) +
   theme_test() +
   scale_color_manual(values = c("dodgerblue4", "hotpink4", "lightyellow4", "seagreen4")) +
   labs(
@@ -355,7 +355,7 @@ ggplot(data = att, aes(x = PercentSalaryHike)) +
 ggplot(data = att, aes(x = JobRole, y = PercentSalaryHike, color = JobRole)) +
   geom_violin(show.legend = FALSE) +
   geom_jitter(show.legend = FALSE, shape = 20, alpha = 0.33) +
-  geom_boxplot(width = 0.15) +
+  geom_boxplot(width = 0.15, show.legend = FALSE) +
   theme_test() +
   scale_color_manual(values = c("dodgerblue4", "hotpink4", "lightyellow4", "seagreen4")) +
   labs(
@@ -401,7 +401,7 @@ ggplot(data = att, aes(x = TotalWorkingYears)) +
 ggplot(data = att, aes(x = JobRole, y = TotalWorkingYears, color = JobRole)) +
   geom_violin(show.legend = FALSE) +
   geom_jitter(show.legend = FALSE, shape = 20, alpha = 0.33) +
-  geom_boxplot(width = 0.15) +
+  geom_boxplot(width = 0.15, show.legend = FALSE) +
   theme_test() +
     scale_y_continuous(breaks = round(seq(min(att$TotalWorkingYears), max(att$TotalWorkingYears), by = 5),1)) +
   scale_color_manual(values = c("dodgerblue4", "hotpink4", "lightyellow4", "seagreen4")) +
@@ -427,7 +427,7 @@ ggplot(data = att, aes (x = YearsAtCompany)) +
 ggplot(data = att, aes(x = JobRole, y = YearsAtCompany, color = JobRole)) +
   geom_violin(show.legend = FALSE) +
   geom_jitter(show.legend = FALSE, shape = 20, alpha = 0.33) +
-  geom_boxplot(width = 0.15) +
+  geom_boxplot(width = 0.15, show.legend = FALSE) +
   theme_test() +
     scale_y_continuous(breaks = round(seq(min(att$YearsAtCompany), max(att$YearsAtCompany), by = 5),1)) +
   scale_color_manual(values = c("dodgerblue4", "hotpink4", "lightyellow4", "seagreen4")) +
@@ -453,7 +453,7 @@ ggplot(data = att, aes (x = YearsInCurrentRole)) +
 ggplot(data = att, aes(x = JobRole, y = YearsInCurrentRole, color = JobRole)) +
   geom_violin(show.legend = FALSE) +
   geom_jitter(show.legend = FALSE, shape = 20, alpha = 0.33) +
-  geom_boxplot(width = 0.15) +
+  geom_boxplot(width = 0.15, show.legend = FALSE) +
   theme_test() +
    scale_y_continuous(breaks = round(seq(min(att$YearsInCurrentRole), max(att$YearsInCurrentRole), by = 5),1)) +
   scale_color_manual(values = c("dodgerblue4", "hotpink4", "lightyellow4", "seagreen4")) +
@@ -479,7 +479,7 @@ ggplot(data = att, aes (x = YearsSinceLastPromotion)) +
 ggplot(data = att, aes(x = JobRole, y = YearsSinceLastPromotion, color = JobRole)) +
   geom_violin(show.legend = FALSE) +
   geom_jitter(show.legend = FALSE, shape = 20, alpha = 0.33) +
-  geom_boxplot(width = 0.15) +
+  geom_boxplot(width = 0.15, show.legend = FALSE) +
   theme_test() +
    scale_y_continuous(breaks = round(seq(min(att$YearsSinceLastPromotion), max(att$YearsSinceLastPromotion), by = 5),1)) +
   scale_color_manual(values = c("dodgerblue4", "hotpink4", "lightyellow4", "seagreen4")) +
@@ -688,7 +688,7 @@ Percent_Male_Attrition
 ggplot(data = att, aes(x = Attrition, y = Age, color = Attrition)) + 
   geom_violin(show.legend = FALSE) +
   geom_jitter(show.legend = FALSE, shape = 20, alpha = 0.33) +
-  geom_boxplot(width = 0.15) +
+  geom_boxplot(width = 0.15, show.legend = FALSE) +
   theme_test() +
   scale_color_manual(values = c("red4", "green4")) +
   labs(
@@ -702,7 +702,7 @@ ggplot(data = att, aes(x = Attrition, y = Age, color = Attrition)) +
 ggplot(data = att, aes(x = Attrition, y = DistanceFromHome, color = Attrition)) +
   geom_violin(color = "dimgrey", show.legend = FALSE) +
   geom_jitter(show.legend = FALSE, shape = 20, alpha = 0.33) +
-  geom_boxplot(width = 0.15) +
+  geom_boxplot(width = 0.15, show.legend = FALSE) +
   theme_test() +
   scale_color_manual(values = c("red4", "green4")) +
   labs(
@@ -716,7 +716,7 @@ ggplot(data = att, aes(x = Attrition, y = DistanceFromHome, color = Attrition)) 
 ggplot(data = att, aes(x = Attrition, y = HourlyRate, color = Attrition)) +
   geom_violin(show.legend = FALSE) +
   geom_jitter(show.legend = FALSE, shape = 20, alpha = 0.33) +
-  geom_boxplot(width = 0.15) +
+  geom_boxplot(width = 0.15, show.legend = FALSE) +
   theme_test() +
   scale_color_manual(values = c("red4", "green4")) +
   labs(
@@ -748,7 +748,7 @@ ggplot(data = att, aes(x = Attrition, fill = Attrition)) +
 ggplot(data = att, aes(x = Attrition, y = PercentSalaryHike, color = Attrition)) +
   geom_violin(show.legend = FALSE) +
   geom_jitter(show.legend = FALSE, shape = 20, alpha = 0.33) +
-  geom_boxplot(width = 0.15) +
+  geom_boxplot(width = 0.15, show.legend = FALSE) +
   theme_test() +
   scale_color_manual(values = c("red4", "green4")) +
   labs(
@@ -762,7 +762,7 @@ ggplot(data = att, aes(x = Attrition, y = PercentSalaryHike, color = Attrition))
 ggplot(data = att, aes(x = Attrition, y = TotalWorkingYears, color = Attrition)) +
   geom_violin(show.legend = FALSE) +
   geom_jitter(show.legend = FALSE, shape = 20, alpha = 0.33) +
-  geom_boxplot(width = 0.15) +
+  geom_boxplot(width = 0.15, show.legend = FALSE) +
   theme_test() +
   scale_color_manual(values = c("red4", "green4")) +
   labs(
@@ -776,7 +776,7 @@ ggplot(data = att, aes(x = Attrition, y = TotalWorkingYears, color = Attrition))
 ggplot(data = att, aes(x = Attrition, y = YearsAtCompany, color = Attrition)) +
   geom_violin(show.legend = FALSE) +
   geom_jitter(show.legend = FALSE, shape = 20, alpha = 0.33) +
-  geom_boxplot(width = 0.15) +
+  geom_boxplot(width = 0.15, show.legend = FALSE) +
   theme_test() +
   scale_color_manual(values = c("red4", "green4")) +
   labs(
@@ -790,7 +790,7 @@ ggplot(data = att, aes(x = Attrition, y = YearsAtCompany, color = Attrition)) +
 ggplot(data = att, aes(x = Attrition, y = YearsInCurrentRole, color = Attrition)) +
   geom_violin(show.legend = FALSE) +
   geom_jitter(show.legend = FALSE, shape = 20, alpha = 0.33) +
-  geom_boxplot(width = 0.15) +
+  geom_boxplot(width = 0.15, show.legend = FALSE) +
   theme_test() +
   scale_color_manual(values = c("red4", "green4")) +
   labs(
@@ -804,7 +804,7 @@ ggplot(data = att, aes(x = Attrition, y = YearsInCurrentRole, color = Attrition)
 ggplot(data = att, aes(x = Attrition, y = YearsSinceLastPromotion, color = Attrition)) +
   geom_violin(show.legend = FALSE) +
   geom_jitter(show.legend = FALSE, shape = 20, alpha = 0.33) +
-  geom_boxplot(width = 0.15) +
+  geom_boxplot(width = 0.15, show.legend = FALSE) +
   theme_test() +
   scale_color_manual(values = c("red4", "green4")) +
   labs(
