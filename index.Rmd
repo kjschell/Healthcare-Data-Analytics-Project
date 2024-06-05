@@ -1055,6 +1055,8 @@ influencePlot(reg1)
 Observations 317, 964, 973, 1221, and 1601 demonstrated significant influence. I will investigate these observations by first by pulling them into their own table. I will then highlight them on scatterplots of the continuous variables.
 
 ```{r}
+if(!require(gridExtra)) install.packages("gridExtra")
+library(gridExtra)
 Outliers.reg1 <- train.att %>%
   filter(EmployeeID %in% c(1230043, 1536328, 1081600, 1675357, 1553672)) %>%
   select(EmployeeID, JobRole, Age, DistanceFromHome, TotalWorkingYears, YearsAtCompany, YearsInCurrentRole, YearsSinceLastPromotion, EnvironmentSatisfaction, OverTime, MaritalStatus, JobInvolvement, JobSatisfaction, JobLevel)
