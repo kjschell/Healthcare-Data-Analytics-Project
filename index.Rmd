@@ -116,9 +116,11 @@ att<-att.na
 Based on the basic descriptive statistics, the sample at large reflects a relatively young group of workers that skews older that live relatively close to home and earn an average hourly rate well above the average for US healthcare workers ([US Bureau of Labor Statistics](https://www.bls.gov/ooh/healthcare/home.htm), 2023). Additionally, most participants have worked at only one company, however, the sample is skewed greatly by those who have worked for several organizations. Interestingly, most participants have been promoted within the last year. 
 
 ```{r}
+if(!require(stargazer)) install.packages("stargazer")
+library(stargazer)
 att.continuous <- att %>%
 select(Age, DailyRate, DistanceFromHome, Education, HourlyRate, MonthlyIncome, MonthlyRate, NumCompaniesWorked, PercentSalaryHike, StandardHours, TotalWorkingYears, YearsAtCompany, YearsInCurrentRole,YearsSinceLastPromotion, YearsWithCurrManager)
-summary(att.continuous)
+stargazer(att.continuous, type = "text", title = "Descriptive Statistics", digits = 2, out= "table1.text")
 ```
 **Nominal and Ordinal Variables** 
 
@@ -1053,13 +1055,10 @@ influencePlot(reg1)
 Observations 317, 964, 973, 1221, and 1601 demonstrated significant influence. I will investigate these observations by first by pulling them into their own table. I will then highlight them on scatterplots of the continuous variables.
 
 ```{r}
-if(!require(kableExtral)) install.packages("kableExtra")
-library(kableExtra)
 Outliers.reg1 <- train.att %>%
   filter(EmployeeID %in% c(1230043, 1536328, 1081600, 1675357, 1553672)) %>%
   select(EmployeeID, JobRole, Age, DistanceFromHome, TotalWorkingYears, YearsAtCompany, YearsInCurrentRole, YearsSinceLastPromotion, EnvironmentSatisfaction, OverTime, MaritalStatus, JobInvolvement, JobSatisfaction, JobLevel)
-kbl(Outliers.reg1, booktabs = T) %>%
-  kable_styling(latex_options = "striped")
+print(Outliers.reg1)
 ggplot(data = train.att, aes(x = Age)) +
   geom_histogram(binwidth = 2, color = "dimgrey", fill = "grey65") +
   annotate(geom = "text", x = 47, y = 10, label = "155367", color = "dodgerblue4", size = 2.5) + 
