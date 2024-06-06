@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### About Me
 
-To cite Nate Bargatze, "Hello World!" 
+To quote Nate Bargatze, "Hello World!" 
 
 As you can see above, my name is Kevin Schell. I am a practicing physical therapist with over twelve years of clinical experience working with adults admitted to a major academic medical center in Boston. I am a board-certified clinical specialist in geriatric physical therapy and have provided physical therapy care to adults across all specialties including critical care environments and the hospital's emergency department. In fact, my time working in the emergency department ignited a new passion for me to take my clinical experience and (hopefully) positively impact the patient experience at a different level from one-on-one patient care. To this end, I am currently pursuing a [Master of Science in Healthcare Data Analytics at the MGH Institute of Health Professions](https://www.mghihp.edu/healthcare-leadership/degrees-programs/ms-healthcare-data-analytics). 
 
