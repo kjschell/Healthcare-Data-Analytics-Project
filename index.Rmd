@@ -35,6 +35,10 @@ I also relabeled the JobRole level Admin to Administrative. This Admin level pre
 ```{r}
 if (!require(tidyverse)) install.packages("tidyverse")
 library(tidyverse)
+if (!require(gt)) install.packages("gt")
+library(gt)
+if (!require(gtsummary)) install.packages("gtsummary")
+library(gtsummary)
 setwd("C:\\Users\\kjsch\\OneDrive\\Documents\\Schell Data Analytics Portfolio\\Spring 2024 Data Analytics Project")
 att <- read.csv("watson_healthcare_modified.csv")
 att$Attrition<-as.factor(att$Attrition)
@@ -116,11 +120,20 @@ att<-att.na
 Based on the basic descriptive statistics, the sample at large reflects a relatively young group of workers that skews older that live relatively close to home and earn an average hourly rate well above the average for US healthcare workers ([US Bureau of Labor Statistics](https://www.bls.gov/ooh/healthcare/home.htm), 2023). Additionally, most participants have worked at only one company, however, the sample is skewed greatly by those who have worked for several organizations. Interestingly, most participants have been promoted within the last year. 
 
 ```{r}
-if(!require(stargazer)) install.packages("stargazer")
-library(stargazer)
 att.continuous <- att %>%
-select(Age, DailyRate, DistanceFromHome, Education, HourlyRate, MonthlyIncome, MonthlyRate, NumCompaniesWorked, PercentSalaryHike, StandardHours, TotalWorkingYears, YearsAtCompany, YearsInCurrentRole,YearsSinceLastPromotion, YearsWithCurrManager)
-stargazer(att.continuous, type = "text", title = "Descriptive Statistics", digits = 2, out= "table1.text")
+select(Age, Attrition, DailyRate, DistanceFromHome, HourlyRate, MonthlyIncome, MonthlyRate, NumCompaniesWorked, PercentSalaryHike, TotalWorkingYears, YearsAtCompany, YearsInCurrentRole,YearsSinceLastPromotion, YearsWithCurrManager)
+att.continuous %>%
+  select(!Attrition) %>%
+  tbl_summary(
+    statistic = list(
+      all_continuous() ~ "{mean} ({sd})")
+    )
+att.continuous %>%
+  tbl_summary(
+    by = Attrition,
+    statistic = list(
+      all_continuous() ~ "{mean} ({sd})")
+  ) %>% add_p()
 ```
 **Nominal and Ordinal Variables** 
 
@@ -128,8 +141,12 @@ The sample is imbalanced across the outcome of interest, Attrition. Additionally
 
 ```{r}
 att.nomord<-att%>%
-  select(!c(EmployeeID, Age, DailyRate, DistanceFromHome, Education, HourlyRate, MonthlyIncome, MonthlyRate, NumCompaniesWorked, PercentSalaryHike, StandardHours, TotalWorkingYears, TrainingTimesLastYear, YearsAtCompany, YearsInCurrentRole,YearsSinceLastPromotion, YearsWithCurrManager))
-summary(att.nomord)
+  select(!c(EmployeeID, Age, DailyRate, DistanceFromHome, HourlyRate, MonthlyIncome, MonthlyRate, NumCompaniesWorked, PercentSalaryHike, StandardHours, TotalWorkingYears, TrainingTimesLastYear, YearsAtCompany, YearsInCurrentRole,YearsSinceLastPromotion, YearsWithCurrManager))
+tbl_summary(att.nomord)
+att.nomord %>%
+  tbl_summary(
+    by = Attrition
+  )
 ```
 
 
