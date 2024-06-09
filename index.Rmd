@@ -1092,7 +1092,52 @@ ggplot(data = train.att, aes(x = Age)) +
     title = "Potential Outliers' Ages",
     subtitle = "All toward Upper Limit but Reasonable Values"
   )
+ggplot(data = train.att, aes(x = DistanceFromHome)) +
+  geom_histogram(binwidth = 2, color = "dimgrey", fill = "grey65") +
+  annotate(geom = "text", x = 29, y = 30, label = "155367", color = "dodgerblue4", size = 2.5) + 
+  annotate(geom = "text", x = 1, y = 25, label = "1230043", color = "hotpink4", size = 2.5) +
+   annotate(geom = "text", x = 9, y = 75, label = "1675357", color = "hotpink4", size = 2.5) +
+   annotate(geom = "text", x = 7, y = 35, label = "1536328", color = "seagreen4", size = 2.5) +
+   annotate(geom = "text", x = 13, y = 15, label = "1081600", color = "hotpink4", size = 2.5) + 
+  theme_test() +
+  labs(
+    x = "Distance from Work and Home",
+    y = "Count",
+    title = "Potential Outliers' Commutes",
+    subtitle = "All Reasonable Values"
+  )
+ggplot(data = train.att, aes(x = TotalWorkingYears)) +
+  geom_histogram(binwidth = 2, color = "dimgrey", fill = "grey65") +
+  annotate(geom = "text", x = 10, y = 10, label = "155367", color = "dodgerblue4", size = 2.5) + 
+  annotate(geom = "text", x = 25, y = 15, label = "1230043", color = "hotpink4", size = 2.5) +
+   annotate(geom = "text", x = 25, y = 50, label = "1675357", color = "hotpink4", size = 2.5) +
+   annotate(geom = "text", x = 31, y = 10, label = "1536328", color = "seagreen4", size = 2.5) +
+   annotate(geom = "text", x = 24, y = 75, label = "1081600", color = "hotpink4", size = 2.5) + 
+  theme_test() +
+  labs(
+    x = "Total Career Length",
+    y = "Count",
+    title = "Potential Outliers' Career Duration",
+    subtitle = "All Reasonable Values"
+    )
+ggplot(data = train.att, aes(x = YearsAtCompany)) +
+  geom_histogram(binwidth = 2, color = "dimgrey", fill = "grey65") +
+  annotate(geom = "text", x = 10, y = 25, label = "155367", color = "dodgerblue4", size = 2.5) + 
+  annotate(geom = "text", x = 7, y = 15, label = "1230043", color = "hotpink4", size = 2.5) +
+   annotate(geom = "text", x = 23, y = 50, label = "1675357", color = "hotpink4", size = 2.5) +
+   annotate(geom = "text", x = 10, y = 75, label = "1536328", color = "seagreen4", size = 2.5) +
+   annotate(geom = "text", x = 19, y = 25, label = "1081600", color = "hotpink4", size = 2.5) + 
+  theme_test() +
+  labs(
+    x = "Years at Current Company",
+    y = "Count",
+    title = "Potential Outliers' Years with Current Company",
+    subtitle = "All Reasonable Values"
+  )
+
 ```
+
+I do not see any clear evidence of these observations being abnormal or inaccurate. Given this, I would maintain these observations in my model. However, this model as a whole demonstrated correlations among continuous independent variables. Additionally, there were issues with linearity of the relationship between the continuous independent variables and the probability estimates. At least one new model will be specified to address these issues. 
 
 
 ## New Models {.tabset}
