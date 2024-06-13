@@ -1282,7 +1282,35 @@ table(predicted.Attrition, test.att$Attrition)
 
 
 
-## Conclusions
+## Interpreting Results Reg7  {.tabset}
+
+### Sample Level 
+
+For this sample, we can look at the specific coefficients for each independent variable or, in the case of categorical and ordinal level data, the coefficients for the different levels to understand how the odds of Attrition change for individual observations.
+
+The levels of JobRole offer little help in differetiating the odds of Attrition in this sample. The coefficients for JobRoleNurse, JobRoleOther, and JobRoleTherapist are in relation to JobRoleAdmin. The exponentiated coefficients are actually odds ratios. In this case, the odds ratios are unrealistically high. When we review their relevance at the population level, we will see why they are not indivudally helpful. It would be reasonable to consider why they should remain in the model. I continued to keep this variable in the model because there may be value in controlling for these levels for the other variables in the model.
+
+With regard to commuting distances, an increase in Distance increases the odds of Attrition. More specifically, for every one mile increase in Distance, Attrition is predicted to change on average by 1.09 times. In other words, the odds of Attrition are predicted to increase by 9% on average when controlling for all other variables in the model. 
+
+In contrast to Distance, an increase in the time an individual has spent in their current role offers protection against Attrition. Specifically, for every one year increase in YearsInCurrentRole, the odds of Attrition are predicted to change by 0.73 on average when controlling for all other variables in the model. In other words, for every one year increase in YearsInCurrentRole, the odds of leaving one's role decrease by 27% on average. 
+
+Increasing the time since a promotion increases the odds of Attrition. In this sample, for every one year increase in YearsSinceLastPromotion is predicted to change the odds of Attrition by 1.16 on average when controlling for all the other variables in the model. This means that the odds are 16% higher for every one year increase in time since last promotion. 
+
+Much like the JobRole variable, the rest of the variables have multiple exponentiated coefficients, one for each level other than the reference variable. 
+
+With regard to environmental satisfaction, the odds of Attrition are predicted to change by 0.25 on average for those who respond with level 2 as compared to those who reply with level 1 when controlling for all other variables in the model. In other words, responding with level 2 as compared to level 1 decreases the odds of leaving one's job by 75%. Interestingly, responding with level 3 actually increases the odds of Attrition by 65% as compared to responding with level 1. Responding with level 4 reduces the odds of Attrition by 7% on average when controlling for all other variables in the model. 
+
+Participating in overtime work appears to greatly impact the odds of Attrition in this sample. Those who report working overtime are predicted on average to have 28.47 times the odds of Attrition as compared to those who do not report working overtime. 
+
+Being married for single increase the odds of Attrition when compared to those who are single in this sample. More specifically, those who are married have odds of Attrition 1.81 times on average as compared to those who are divorced when controlling for all other variables in the model. In contrast, those who are single are predicted to have odds 10.42 times those who are divorced.  
+
+
+
+
+
+
+
+### Population Level
 
 
 
