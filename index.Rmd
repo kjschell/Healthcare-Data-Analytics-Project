@@ -117,7 +117,7 @@ att<-att.na
 
 **Continuous Variables** 
 
-Based on the basic descriptive statistics, the sample at large reflects a relatively young group of workers that skews older, live relatively close to home, and earn an average hourly rate well above the average for US healthcare workers ([US Bureau of Labor Statistics](https://www.bls.gov/ooh/healthcare/home.htm), 2023). Additionally, a majority of participants have worked at only one company, however, the sample is skewed greatly by those who have worked for several organizations. Interestingly, a vast majority of participants have been promoted within the last year. 
+Based on the basic descriptive statistics, the sample at large reflects a relatively young group of workers that skews older, live relatively close to home, and earn an average hourly rate well above the average for US healthcare workers ([US Bureau of Labor Statistics](https://www.bls.gov/ooh/healthcare/home.htm), 2023). Additionally, a majority of participants have worked at only one company, however, the sample is skewed greatly by those who have worked for several organizations. Interestingly, a vast majority of participants have been promoted within the last 2 years. 
 
 ```{r}
 att.continuous <- att %>%
