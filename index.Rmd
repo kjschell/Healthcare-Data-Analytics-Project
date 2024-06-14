@@ -117,7 +117,7 @@ att<-att.na
 
 **Continuous Variables** 
 
-Based on the basic descriptive statistics, the sample at large reflects a relatively young group of workers that skews older that live relatively close to home and earn an average hourly rate well above the average for US healthcare workers ([US Bureau of Labor Statistics](https://www.bls.gov/ooh/healthcare/home.htm), 2023). Additionally, most participants have worked at only one company, however, the sample is skewed greatly by those who have worked for several organizations. Interestingly, most participants have been promoted within the last year. 
+Based on the basic descriptive statistics, the sample at large reflects a relatively young group of workers that skews older, live relatively close to home, and earn an average hourly rate well above the average for US healthcare workers ([US Bureau of Labor Statistics](https://www.bls.gov/ooh/healthcare/home.htm), 2023). Additionally, a majority of participants have worked at only one company, however, the sample is skewed greatly by those who have worked for several organizations. Interestingly, a vast majority of participants have been promoted within the last year. 
 
 ```{r}
 att.continuous <- att %>%
@@ -137,7 +137,7 @@ att.continuous %>%
 ```
 **Nominal and Ordinal Variables** 
 
-The sample is imbalanced across the outcome of interest, Attrition. Additionally, male gender is grossly overrepresented. Nurse is the most common role identified, and most participants are single and early in their careers. Interestingly, most participants rate their WorkLifeBalance positively. 
+The sample is imbalanced across the outcome of interest, Attrition. Additionally, male gender is grossly overrepresented. Nurse is the most common role identified, and a slim participants are single. More participants report lower job levels as compared to higher job levels. Interestingly, most participants rate their work and life balance positively. 
 
 ```{r}
 att.nomord<-att%>%
@@ -1140,7 +1140,7 @@ ggplot(data = train.att, aes(x = YearsAtCompany)) +
 I do not see any clear evidence of these observations being abnormal or inaccurate. Given this, I would maintain these observations in my model. However, this model as a whole demonstrated correlations among continuous independent variables. Additionally, there were issues with linearity of the relationship between the continuous independent variables and the probability estimates. At least one new model will be specified to address these issues. 
 
 
-## New Models {.tabset}
+## Updated Models {.tabset}
 
 Based on the Assumption Diagnostic Testing, I decided to definitively remove YearsAtCompany. Lastly, I will create two models, one with Age and one without Age. 
 
@@ -1312,6 +1312,11 @@ Lastly, higher JobLevels demonstrated a similarly polarized impact on odds for A
 
 ### Population Level
 
+Instead of only looking at the exponentiated point estimate for the coefficients, we will look at the 95% confidence intervals around the exponentiated coefficients in order to gain insight into the impact of the included variables on the odds of Attrition.
+
+As referenced in the sample results, JobRole levels offer little value in understanding the change in odds. The 95% confidence intervals not only capture 1 but also range from 0 to infinity. In other words, respondents who are nurses have odds that range from 0 to infinity times the odds as compared to those who are administrators. We have no evidence that the different roles are associated with an increase or decrease in the odds of leaving one's job.
+
+In contrast, the 95% confidence interval around the exponentiated coefficient for commuting distance does not capture 1. From the results it appears that for each one mile increase in distance from home the odds of Attrition increase from at least 1.05 to 1.11 times on average when controlling for all other variables in the model. In other words, the odds of Attrition increase on average between 5% and 11%. 
 
 
 
@@ -1319,7 +1324,9 @@ Lastly, higher JobLevels demonstrated a similarly polarized impact on odds for A
 
 
 
-## References
+
+
+## References and Acknowledgements 
 
 https://www.bls.gov/ooh/healthcare/home.htm
 
