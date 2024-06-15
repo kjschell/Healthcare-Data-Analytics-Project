@@ -1056,7 +1056,8 @@ When considering the Variance Inflation Factor, YearsAtCompany is relatively lar
 
 ### Zero Cell Count
 
-No participants rated their JobPerformance below a 3. Fortunately, I did not include this variable in any of my models. Therefore, I have no concerns regarding this modelling assumption. 
+No participants rated their JobPerformance below a 3. Fortunately, I did not include this variable in any of my models. 
+Unfortunately, the reference Admin RoleGroup has no participants with left their job. Additionally, the Therapist RoleGroup only had 4 participants leave their job. These marked imbalances led to unrealistic exponentiated coefficients and infinite confidence intervals for the role groups. I could handle this several different ways. I can completely remove RoleGroup from future models. I could also limit the scope of the analysis to those groups with adequate numbers of observations across groups. I could also consider bootsrapping. In this case, I will plan on simply removing RoleGroup going forward. 
 
 ### Complete Separation of Prediction 
 
@@ -1137,31 +1138,60 @@ ggplot(data = train.att, aes(x = YearsAtCompany)) +
 
 ```
 
-I do not see any clear evidence of these observations being abnormal or inaccurate. Given this, I would maintain these observations in my model. However, this model as a whole demonstrated correlations among continuous independent variables. Additionally, there were issues with linearity of the relationship between the continuous independent variables and the probability estimates. At least one new model will be specified to address these issues. 
+I do not see any clear evidence of these observations being abnormal or inaccurate. Given this, I would maintain these observations in my model. However, this model as a whole demonstrated correlations among continuous independent variables. Additionally, there were issues with linearity of the relationship between the continuous independent variables and the probability estimates. I also identified that RoleGroup lacked sufficient observations who left their jobs across the different levels. At least one new model will be specified to address these issues. 
 
 
 ## Updated Models {.tabset}
 
-Based on the Assumption Diagnostic Testing, I decided to definitively remove YearsAtCompany. Lastly, I will create two models, one with Age and one without Age. 
+Based on the diagnostic testing of assumptions for reg1, I will remove Age, YearsAtCompany, and RoleGroup. 
 
 ### New Models
 
 ```{r}
-reg5 <- glm(Attrition ~ JobRole+Age+DistanceFromHome+TotalWorkingYears + YearsInCurrentRole + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime + MaritalStatus + JobInvolvement + JobSatisfaction + JobLevel, data = train.att, family = "binomial")
+reg5 <- glm(Attrition ~ DistanceFromHome+TotalWorkingYears + YearsInCurrentRole + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime +MaritalStatus + JobInvolvement + JobSatisfaction + JobLevel, data = train.att, family = "binomial")
 summ(reg5, exp = TRUE, confint = TRUE)
-reg6 <- glm(Attrition ~ JobRole+ DistanceFromHome+TotalWorkingYears + YearsInCurrentRole + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime +MaritalStatus + JobInvolvement + JobSatisfaction + JobLevel, data = train.att, family = "binomial")
+```
+
+### Diagnostic Testing Reg 5
+
+```{r}
+residualPlots(reg5)
+marginalModelPlots(reg5)
+linearity.check.new <-train.att %>%
+  select(DistanceFromHome, TotalWorkingYears, YearsInCurrentRole, YearsSinceLastPromotion)
+predictors.new <- colnames(linearity.check.new)
+linearity.check.new$probabilities <- reg5$fitted.values
+linearity.check.new <- linearity.check.new %>%
+  mutate(logit = log(probabilities/(1 - probabilities))) %>%
+  select(-probabilities) %>%
+  gather(key = "predictors", value = "predictor.values", -logit)
+ggplot(linearity.check.new, aes(y = logit, x = predictor.values)) +
+  geom_point() +
+  stat_smooth(method = "loess") +
+  theme_test() +
+  facet_wrap(~predictors, scales = "free_x")
+reg5.cont.ind <- att[c("DistanceFromHome", "TotalWorkingYears", "YearsInCurrentRole", "YearsSinceLastPromotion")]
+cor(reg5.cont.ind)
+vif(reg5)
+```
+
+Similar to the issue of Age in the initial model iterations, I now have evidence that TotalWorkingYears does not fit the logistic regression model well. Additionally, TotalWorkingYears demonstrated moderate correlation with YearsInCurrentRole. I will generate an additional model with this variable removed and compare its performance against reg5.
+
+### Reg6
+```{r}
+reg6 <- glm(Attrition ~ DistanceFromHome + YearsInCurrentRole + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime +MaritalStatus + JobInvolvement + JobSatisfaction+ JobLevel, data = train.att, family = "binomial")
 summ(reg6, exp = TRUE, confint = TRUE)
 ```
 
-There was little change in compartive model performance with Age removed. Given this, I will move forward with diagnostic testing of Reg6.
+While reg5 appears to have a better model fit by AIC and pseudo-R^2, I will go forward with reg6 given my concerns over including TotalWorkingYears.
 
-### Diagnostic Testing Reg 6
+### Diagnostic Testing of Assumptions Reg6
 
 ```{r}
 residualPlots(reg6)
 marginalModelPlots(reg6)
 linearity.check.new <-train.att %>%
-  select(Age, DistanceFromHome, TotalWorkingYears, YearsInCurrentRole, YearsSinceLastPromotion)
+  select(DistanceFromHome, YearsInCurrentRole, YearsSinceLastPromotion)
 predictors.new <- colnames(linearity.check.new)
 linearity.check.new$probabilities <- reg6$fitted.values
 linearity.check.new <- linearity.check.new %>%
@@ -1173,51 +1203,18 @@ ggplot(linearity.check.new, aes(y = logit, x = predictor.values)) +
   stat_smooth(method = "loess") +
   theme_test() +
   facet_wrap(~predictors, scales = "free_x")
-reg6.cont.ind <- att[c("DistanceFromHome", "TotalWorkingYears", "YearsInCurrentRole", "YearsSinceLastPromotion")]
+reg6.cont.ind <- att[c("DistanceFromHome", "YearsInCurrentRole", "YearsSinceLastPromotion")]
 cor(reg6.cont.ind)
 vif(reg6)
-```
-
-Similar to the issue of Age in the initial model iterations, I now have evidence that TotalWorkingYears does not fit the logistic regression model well. I will generate an additional model with this variable removed and compare its performance against reg6.
-
-### Reg7
-```{r}
-reg7 <- glm(Attrition ~ JobRole+ DistanceFromHome + YearsInCurrentRole + YearsSinceLastPromotion + EnvironmentSatisfaction + OverTime +MaritalStatus + JobInvolvement + JobSatisfaction + JobLevel, data = train.att, family = "binomial")
-summ(reg7, exp = TRUE, confint = TRUE)
-```
-
-There is little change in model performance with and without TotalWorkingYears. Given this, I will move ahead with diagnostic testing of assumptions for the newest model, reg7.
-
-### Diagnostic Testing of Assumptions Reg7
-
-```{r}
-residualPlots(reg7)
-marginalModelPlots(reg7)
-linearity.check.new <-train.att %>%
-  select(DistanceFromHome, YearsInCurrentRole, YearsSinceLastPromotion)
-predictors.new <- colnames(linearity.check.new)
-linearity.check.new$probabilities <- reg7$fitted.values
-linearity.check.new <- linearity.check.new %>%
-  mutate(logit = log(probabilities/(1 - probabilities))) %>%
-  select(-probabilities) %>%
-  gather(key = "predictors", value = "predictor.values", -logit)
-ggplot(linearity.check.new, aes(y = logit, x = predictor.values)) +
-  geom_point() +
-  stat_smooth(method = "loess") +
-  theme_test() +
-  facet_wrap(~predictors, scales = "free_x")
-reg7.cont.ind <- att[c("DistanceFromHome", "YearsInCurrentRole", "YearsSinceLastPromotion")]
-cor(reg7.cont.ind)
-vif(reg7)
-outlierTest(reg7)
-influenceIndexPlot(reg7)
-influencePlot(reg7)
+outlierTest(reg6)
+influenceIndexPlot(reg6)
+influencePlot(reg6)
 ```
 
 ```{r}
-Outliers.reg7 <- train.att %>%
+Outliers.reg6 <- train.att %>%
   filter(EmployeeID %in% c(1230043, 1385384, 1675357, 1152345, 1778989, 1081600))
-gt(Outliers.reg7)
+gt(Outliers.reg6)
 
 ggplot(data = train.att, aes(x = DistanceFromHome)) +
   geom_histogram(binwidth = 2, color = "dimgrey", fill = "grey65") +
@@ -1268,12 +1265,12 @@ ggplot(data = train.att, aes(x = YearsSinceLastPromotion)) +
 
 
 
-#### Reg7 Performance, Test Data
+#### Reg6 Performance, Test Data
 
 ```{r}
 if (!require(caret)) install.packages("caret")
 library(caret)
-test.probabilities <- predict(reg7, test.att, type = "response")
+test.probabilities <- predict(reg6, test.att, type = "response")
 contrasts(test.att$Attrition)
 predicted.Attrition<- ifelse(test.probabilities > 0.5, "Yes", "No")
 mean(predicted.Attrition == test.att$Attrition)
@@ -1282,13 +1279,11 @@ table(predicted.Attrition, test.att$Attrition)
 
 
 
-## Interpreting Results Reg7  {.tabset}
+## Interpreting Results Reg6  {.tabset}
 
 ### Sample Level 
 
 For this sample, we can look at the specific coefficients for each independent variable and, in the case of categorical and ordinal level data, the coefficients for the different levels to understand how the odds of Attrition change for individual observations.
-
-The levels of JobRole offer little help in differentiating the odds of Attrition in this sample. The coefficients for JobRoleNurse, JobRoleOther, and JobRoleTherapist are in relation to JobRoleAdmin. The exponentiated coefficients included in the summaries above are odds ratios. In the case of JobRole, the odds ratios are unrealistically high. When we review their relevance at the population level, we will see why they are not individually helpful. It would be reasonable to question why they should remain in the model. I continued to keep this variable in the model because there may be value in controlling for these levels for the other variables in the model.
 
 With regard to commuting distances, an increase in Distance increases the odds of Attrition. More specifically, for every one mile increase in Distance, Attrition is predicted to change on average by 1.09 times. In other words, the odds of Attrition are predicted to increase by 9% on average when controlling for all other variables in the model. 
 
