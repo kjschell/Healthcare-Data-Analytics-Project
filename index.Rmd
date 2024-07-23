@@ -1322,7 +1322,7 @@ From the results it appears that for each one mile increase in distance from hom
 
 Miller, J.M. (2023). Employee attrition for healthcare. Retrieved April 20, 2024 from https://www.kaggle.com/datasets/jpmiller/employee-attrition-for-healthcare. 
 
-https://www.bls.gov/ooh/healthcare/home.htm
+U.S. Bureau of Labor Statistics. (2024, April 17). Healthcare occupations. U.S. Bureau of Labor Statistics. https://www.bls.gov/ooh/healthcare/home.htm 
 
 
 
