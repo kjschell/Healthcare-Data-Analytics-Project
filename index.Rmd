@@ -1311,6 +1311,19 @@ Instead of only looking at the exponentiated point estimate for the coefficients
 
 From the results it appears that for each one mile increase in distance from home the odds of Attrition increase from at least 1.05 to 1.11 times on average when controlling for all other variables in the model. In other words, the odds of Attrition increase on average between 5% and 11%. 
 
+We are 95% confident that for every one year increase in career length, the odds of leaving a job change by 0.81 times to 0.92 times, controlling for all other independent variables in the model. In other words, the odds of Attrition decrease on average between 8% and 9%.
+
+Similarly, we are 95% confident that in our population of interest, for every one year increase in time spent in a current role changes, the odds of leaving a job change by 0.69 to 0.88. In other words, the odds decrease on average by 12% to 31% on average. 
+
+In contrast, for every one year increase in time since the last promotion, the odds for attrition change by 1.05 times to 1.36 times. In order words, the odds increase between 5% and 36% on average for every one year increase and when controlling for all other variables in the model. 
+
+With regard to the Environmental Satisfaction question, recording the second level changes the odds of leaving one's job by 0.14 times to 0.38 times when compared to those who record the lowest level on average. In other words, the odds of leaving a job decrease between 62% and 86%. Recording the third level relative to the lowest level is predicted to increase the odds of Attrition by 1.18 times to 3.10 times. Recording the highest level of environmental satisfaction changes the odds by 0.61 to 1.60 times. 
+
+Working overtime strongly predicts Attrition as evidenced by an increase in odds between 17.19 to 55.44 times when controlling for all other variables.
+
+In contrast, Marital Status does not appear to have a clear effect as the odds are predicted to change between 0.73 and 2.98 times.
+
+
 
 
 
