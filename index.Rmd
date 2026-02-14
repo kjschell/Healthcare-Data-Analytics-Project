@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 To quote Nate Bargatze, "Hello World!" 
 
-As you can see above, my name is Kevin Schell. I am a practicing physical therapist with over twelve years of clinical experience working with adults admitted to a major academic medical center in Boston. I am a board-certified clinical specialist in geriatric physical therapy and have provided physical therapy care to adults across all specialties including critical care environments and the hospital's emergency department. In fact, my time working in the emergency department ignited a new passion for me to take my clinical experience and (hopefully) positively impact the patient experience at a different level from one-on-one patient care. To this end, I am currently pursuing a [Master of Science in Healthcare Data Analytics at the MGH Institute of Health Professions](https://www.mghihp.edu/healthcare-leadership/degrees-programs/ms-healthcare-data-analytics). 
+As you can see above, my name is Kevin Schell. I am a practicing physical therapist with over fourteen years of clinical experience working with adults admitted to a major academic medical center in Boston. I am a board-certified clinical specialist in geriatric physical therapy and have provided physical therapy care to adults across all specialties including critical care environments and the hospital's emergency department. In fact, my time working in the emergency department ignited a new passion for me to take my clinical experience and (hopefully) positively impact the patient experience at a different level from one-on-one patient care. To this end, I completed my [Master of Science in Healthcare Data Analytics at the MGH Institute of Health Professions](https://www.mghihp.edu/healthcare-leadership/degrees-programs/ms-healthcare-data-analytics). 
 
 To supplement my learning, I have used different publicly available datasets to practice visualization techniques while looking for potential associations to further investigate with statistical analyses. Most recently, I utilized [Employee Attrition from Healthcare](https://www.kaggle.com/datasets/jpmiller/employee-attrition-for-healthcare) from Kaggle (Miller, 2023). In particular, I worked through logistic regression modeling to identify independent risk factors associated with healthcare works leaving their jobs. I completed these efforts using R (R Core Team, 2024) via R Studio for Windows version 2024.4.1.748 (Posit Team, 2024). Please see my acknowledgements and citations for all packages utilized for this analysis. 
 
@@ -255,7 +255,7 @@ ggplot(data = att, aes(x = JobRole, fill = Gender)) +
   scale_fill_manual(values = c("hotpink4", "dodgerblue4")) +
   labs(
     title = "Gender by JobRole",
-    subtitle = "Male Gender Overrepresented in Nursing and Other Groups"
+    subtitle = "Male Gender Overrepresented in Nursing and Other FGroups"
   )
 ```
 
@@ -945,6 +945,20 @@ ggplot(data = att, aes(x = JobLevel, fill = Attrition)) +
 I divided the dataset with observations with NA for JobLevel removed into a training dataset and testing dataset with 80% of the observations going to former and 20% to the latter.
 
 ```{r}
+att$EnvironmentSatisfaction <- factor(att$EnvironmentSatisfaction, ordered = FALSE)
+att$JobInvolvement <- factor(att$JobInvolvement, ordered = FALSE)
+att$JobLevel <- factor(att$JobLevel, ordered = FALSE)
+att$JobSatisfaction <- factor(att$JobSatisfaction, ordered = FALSE)
+att$PerformanceRating <- factor(att$PerformanceRating, ordered = FALSE)
+att$RelationshipSatisfaction <- factor(att$RelationshipSatisfaction, ordered = FALSE)
+att$WorkLifeBalance <- factor(att$WorkLifeBalance, ordered =  FALSE)
+att$Education <- factor(att$Education, ordered = FALSE)
+att$BusinessTravel <- factor(att$BusinessTravel, ordered = FALSE)
+att$Department <- factor(att$Department, ordered = FALSE)
+att$EducationField <- factor(att$EducationField, ordered = FALSE)
+
+
+
 train_set_size <- floor(0.80 * nrow(att))
 set.seed(316)
 train_div<-sample(seq_len(nrow(att)), size = train_set_size)
@@ -1006,6 +1020,8 @@ I selected the reg1 model over the other three as there was evidence that one of
 if (!require(car)) install.packages("car")
 library(car)
 residualPlots(reg1)
+
+
 ```
 
 Based on the above plots, there are little to no relationships between the residuals and the continuous independent variables in reg1. Interestingly, the p-value for age is quite small. If I consider this one piece of evidence alone, I need to consider rejecting my null hypothesis that age fits the model well. I think the best course of action may be to compare two additional models, one with and one without age, alongside any additional changes that may arise with the continued assumption testing. 
@@ -1293,17 +1309,17 @@ In contrast to Distance, an increase in the time an individual has spent in thei
 
 Increasing the time since a promotion increases the odds of Attrition. In this sample, for every one year increase in YearsSinceLastPromotion is predicted to change the odds of Attrition by 1.15 on average when controlling for all the other variables in the model. This means that there is a predicted 15% average increase in the odds of Attrition. 
 
-With regard to environmental satisfaction, the odds of Attrition are predicted to change by 0.26 times on average for those who respond with level 2 as compared to those who reply with level 1 when controlling for all other variables in the model. In other words, respondents with level 2 are predicted to have odds 74% lower than those with level 1. Interestingly, respondents with level 3 are predicted to have 70% higher odds on average. Level 4 has predicted odds 7% lower on average than seen with level 1.
+With regard to environmental satisfaction, the odds of Attrition are predicted to change by 0.30 times on average for those who respond with level 2 as compared to those who reply with level 1 when controlling for all other variables in the model. In other words, respondents with level 2 are predicted to have odds 70% lower than those with level 1. As expected, those with even higher reported environmental satisfactor have lower odds for Attrition when controlling for all other variables.
 
 Participating in overtime work appears to greatly impact the odds of Attrition in this sample. Those who report working overtime are predicted on average to have 25.89 times the odds of Attrition as compared to those who do not report working overtime. 
 
-Being married for single increase the odds of Attrition when compared to those who are single in this sample. More specifically, those who are married have odds of Attrition 1.62 times on average as compared to those who are divorced when controlling for all other variables in the model. In contrast, those who are single are predicted to have odds 9.19 times on average those who are divorced.  
+Being married or single increase the odds of Attrition when compared to those who are divorced in this sample. More specifically, those who are married have odds of Attrition 1.62 times on average as compared to those who are divorced when controlling for all other variables in the model. In contrast, those who are single are predicted to have odds 9.19 times on average those who are divorced.  
 
-Increasing response levels on the question of JobInvolvement change the odds differently when compared to the reference level 1. For example, those who rate their JobInvolement as a 2 have odds that are 0.11 on average times the odds of those with a 1 rating. Interestingly, those who have a rating of 3 have odds 1.19 times those with a 1 rating while those who rate their JobInvolvement as a 4 have odds 0.93 times those who rate it as a 1. Levels 2 and 4 are associated with reduced odds of leaving one's job, whereas, level 3 is associated with increased odds in this sample. 
+Increasing response levels on the question of JobInvolvement result in lower odds of Attrition as compared to the lowest level. For example, people reporting the highest job involvement have odds 95% lower than those with the lowest involvment in this sample.
 
-Within this sample, higher levels of JobSatisfication resulted in lower odds of Attrition when compared to a level 1 rating. Levels 2, 3, and 4 had odds 0.44, 0.99, and 0.75 on average times the odds of level 1 when controlling for all other variables in the model.
+Within this sample, higher levels of JobSatisfication resulted in lower odds of Attrition when compared to a level 1 rating. Levels 2, 3, and 4 had odds 0.54, 0.55, and 0.29 on average times the odds of level 1 when controlling for all other variables in the model.
 
-Lastly, higher JobLevels demonstrated a similarly polarized impact on odds for Attrition as seen with JobInvolvement. Those who responded with a level 2 or 4 had odds 0.13 and 0.31 on average times those with level 1. In contrast, those with level 3 had odds 1.57 on average times those with level 1 when controlling for all other variables. 
+Lastly, higher JobLevels demonstrated relatively lower odds of Attrition when compared to the lowest job level in this sample. 
 
 ### Population Level
 
@@ -1311,26 +1327,19 @@ Instead of only looking at the exponentiated point estimate for the coefficients
 
 From the results it appears that for each one mile increase in distance from home the odds of Attrition increase from at least 1.05 to 1.11 times on average when controlling for all other variables in the model. In other words, the odds of Attrition increase on average between 5% and 11%. 
 
-We are 95% confident that for every one year increase in career length, the odds of leaving a job change by 0.81 times to 0.92 times, controlling for all other independent variables in the model. In other words, the odds of Attrition decrease on average between 8% and 9%.
-
-Similarly, we are 95% confident that in our population of interest, for every one year increase in time spent in a current role changes, the odds of leaving a job change by 0.69 to 0.88. In other words, the odds decrease on average by 12% to 31% on average. 
-
-In contrast, for every one year increase in time since the last promotion, the odds for attrition change by 1.05 times to 1.36 times. In order words, the odds increase between 5% and 36% on average for every one year increase and when controlling for all other variables in the model. 
-
-With regard to the Environmental Satisfaction question, recording the second level changes the odds of leaving one's job by 0.14 times to 0.38 times when compared to those who record the lowest level on average. In other words, the odds of leaving a job decrease between 62% and 86%. Recording the third level relative to the lowest level is predicted to increase the odds of Attrition by 1.18 times to 3.10 times. Recording the highest level of environmental satisfaction changes the odds by 0.61 to 1.60 times. 
-
-Working overtime strongly predicts Attrition as evidenced by an increase in odds between 17.19 to 55.44 times when controlling for all other variables.
-
-In contrast, Marital Status does not appear to have a clear effect as the odds are predicted to change between 0.73 and 2.98 times.
+We are 95% confident that for every one year increase in the time spent in a current role, the odds of leaving a job change by 0.66 times to 0.83 times, controlling for all other independent variables in the model. In other words, the odds of Attrition decrease on average between 8% and 9%.
 
 
+In contrast, for every one year increase in time since the last promotion, the odds for attrition change by 1.02 times to 1.30 times. In order words, the odds increase between 2% and 30% on average for every one year increase and when controlling for all other variables in the model. 
 
 
+Working overtime strongly predicts Attrition as evidenced by an increase in odds between 14.79 to 45.30 times when controlling for all other variables.
 
+In contrast, the odds of Attrition change by 4.55 to 18.54 times for those who report being single as compared to those who report being divorced.
 
+Regarding job satisfaction, only the highest level of job satisfaction appears to have a clear difference when compared to the lowest level of satisfaction. On average, having the highest job satisfaction changes the odds by 0.15 to 0.56 when controlling for all other variables.
 
-
-
+In contrast, all job levels above the lowest appear to have lower odds of Attrition. The highest job level changes the odds of Attrition by 0.01 to 0.23 times the lowest job level when controlling for all other variables. 
 
 
 ## References and Acknowledgements 
