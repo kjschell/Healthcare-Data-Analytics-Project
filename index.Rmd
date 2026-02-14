@@ -1,9 +1,4 @@
----
-title: "Spring Data Analytics Project"
-author: "Kevin Schell"
-output: 
-  html_document:
-    theme: journal
+
     toc: yes
     toc_float:
       collapsed: true
@@ -1320,6 +1315,7 @@ Increasing response levels on the question of JobInvolvement result in lower odd
 Within this sample, higher levels of JobSatisfication resulted in lower odds of Attrition when compared to a level 1 rating. Levels 2, 3, and 4 had odds 0.54, 0.55, and 0.29 on average times the odds of level 1 when controlling for all other variables in the model.
 
 Lastly, higher JobLevels demonstrated relatively lower odds of Attrition when compared to the lowest job level in this sample. 
+
 
 ### Population Level
 
